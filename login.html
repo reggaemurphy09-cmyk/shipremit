@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ship Remit - Login</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family: Arial, sans-serif;
+}
+
+body{
+    background:linear-gradient(#0a2c63,#1e4f9a);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:20px;
+}
+
+.loginContainer{
+    width:100%;
+    max-width:400px;
+    background:white;
+    border-radius:20px;
+    padding:40px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.3);
+}
+
+.logo{
+    text-align:center;
+    font-size:48px;
+    margin-bottom:10px;
+}
+
+h2{
+    text-align:center;
+    color:#0a2c63;
+    margin-bottom:30px;
+}
+
+.inputGroup{
+    margin-bottom:20px;
+}
+
+.inputGroup input{
+    width:100%;
+    padding:15px;
+    border:2px solid #e0e0e0;
+    border-radius:12px;
+    font-size:16px;
+}
+
+.inputGroup input:focus{
+    border-color:#1e4f9a;
+    outline:none;
+}
+
+.loginBtn{
+    width:100%;
+    padding:15px;
+    background:linear-gradient(#1e4f9a,#0a2c63);
+    color:white;
+    border:none;
+    border-radius:12px;
+    font-size:18px;
+    cursor:pointer;
+    margin-bottom:15px;
+    font-weight:bold;
+}
+
+.loginBtn:hover{
+    transform:translateY(-2px);
+    box-shadow:0 5px 15px rgba(0,0,0,0.2);
+}
+
+.signupLink{
+    text-align:center;
+    margin-top:15px;
+    color:gray;
+}
+
+.signupLink a{
+    color:#1e4f9a;
+    text-decoration:none;
+    font-weight:bold;
+}
+
+.adminLink{
+    text-align:center;
+    margin-top:20px;
+}
+
+.adminLink a{
+    color:#ff6a00;
+    text-decoration:none;
+    font-weight:bold;
+}
+
+.error{
+    color:#e74c3c;
+    text-align:center;
+    margin-top:10px;
+    display:none;
+    padding:10px;
+    background:#f8d7da;
+    border-radius:8px;
+}
+
+.loading{
+    text-align:center;
+    margin-top:10px;
+    display:none;
+}
+
+.spinner{
+    display:inline-block;
+    width:20px;
+    height:20px;
+    border:2px solid #f3f3f3;
+    border-top:2px solid #ff9c2f;
+    border-radius:50%;
+    animation:spin 1s linear infinite;
+}
+
+@keyframes spin{
+    0%{transform:rotate(0deg);}
+    100%{transform:rotate(360deg);}
+}
+</style>
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+</head>
+
+<body>
+<div class="loginContainer">
+    <div class="logo">🚢</div>
+    <h2>Ship Remit Login</h2>
+    
+    <div class="inputGroup">
+        <input type="email" id="email" placeholder="Email Address">
+    </div>
+    
+    <div class="inputGroup">
+        <input type="password" id="password" placeholder="Password">
+    </div>
+    
+    <button class="loginBtn" onclick="login()">Login</button>
+    
+    <div class="signupLink">
+        Don't have an account? <a href="signup.html">Sign Up Here</a>
+    </div>
+    
+    <div class="adminLink">
+        <a href="admin-login.html">👑 Admin Login</a>
+    </div>
+    
+    <div class="error" id="errorMsg"></div>
+    <div class="loading" id="loading">
+        <div class="spinner"></div> Logging in...
+    </div>
+</div>
+
+<script>
+// Firebase config
+const firebaseConfig = {
+    apiKey: "AIzaSyDjspj1rS3F3zt_VhCvY6ypDsU9IfAAvP0",
+    authDomain: "shipremit.firebaseapp.com",
+    databaseURL: "https://shipremit-default-rtdb.firebaseio.com",
+    projectId: "shipremit",
+    storageBucket: "shipremit.firebasestorage.app",
+    messagingSenderId: "516183209213",
+    appId: "1:516183209213:web:d2ffdaa25b14b96de17a94",
+    measurementId: "G-0SE4CEQP5X"
+};
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+async function login() {
+    let email = document.getElementById('email').value.trim();
+    let password = document.getElementById('password').value;
+    
+    document.getElementById('errorMsg').style.display = 'none';
+    document.getElementById('errorMsg').innerHTML = '';
+    
+    if(!email || !password) {
+        document.getElementById('errorMsg').innerHTML = 'Please enter both email and password';
+        document.getElementById('errorMsg').style.display = 'block';
+        return;
+    }
+    
+    document.getElementById('loading').style.display = 'block';
+    document.querySelector('.loginBtn').disabled = true;
+    
+    try {
+        const userCredential = await auth.signInWithEmailAndPassword(email, password);
+        const user = userCredential.user;
+        
+        // Get user data from Firestore
+        const userDoc = await db.collection('users').doc(user.uid).get();
+        
+        if(userDoc.exists) {
+            const userData = userDoc.data();
+            localStorage.setItem('isLoggedIn', 'true');
+            localStorage.setItem('userId', user.uid);
+            localStorage.setItem('userEmail', user.email);
+            localStorage.setItem('userName', userData.name || 'User');
+            localStorage.setItem('userBalance', userData.balance || '0');
+            localStorage.setItem('userCurrency', userData.currency || 'USD');
+            localStorage.setItem('userPhone', userData.phone || '');
+            
+            window.location.href = 'home.html';
+        } else {
+            // User exists in Auth but not in Firestore - show error (shouldn't happen)
+            document.getElementById('errorMsg').innerHTML = 'Account data not found. Please contact support.';
+            document.getElementById('errorMsg').style.display = 'block';
+            await auth.signOut();
+        }
+        
+    } catch (error) {
+        console.error('Login error:', error);
+        let errorMessage = '';
+        switch(error.code) {
+            case 'auth/user-not-found':
+                errorMessage = 'Account not found. Please sign up first.';
+                break;
+            case 'auth/wrong-password':
+                errorMessage = 'Wrong password. Please try again.';
+                break;
+            case 'auth/invalid-email':
+                errorMessage = 'Invalid email address.';
+                break;
+            default:
+                errorMessage = error.message;
+        }
+        document.getElementById('errorMsg').innerHTML = errorMessage;
+        document.getElementById('errorMsg').style.display = 'block';
+    } finally {
+        document.getElementById('loading').style.display = 'none';
+        document.querySelector('.loginBtn').disabled = false;
+    }
+}
+
+// Enter key support
+document.querySelectorAll('input').forEach(input => {
+    input.addEventListener('keypress', function(e) {
+        if(e.key === 'Enter') login();
+    });
+});
+</script>
+</body>
+</html>
