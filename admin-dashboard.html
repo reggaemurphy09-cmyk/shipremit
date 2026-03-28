@@ -1,0 +1,1519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ship Remit - Admin Dashboard</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family: Arial, sans-serif;
+}
+
+body{
+    background:#e9eef5;
+    padding-top:70px;
+    padding-bottom:70px;
+}
+
+.header{
+    position:fixed;
+    top:0;
+    width:100%;
+    background:linear-gradient(#ff6a00,#ff9c2f);
+    color:white;
+    padding:18px;
+    font-size:22px;
+    font-weight:bold;
+    z-index:1000;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding-left:20px;
+    padding-right:20px;
+}
+
+.header-left{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.logoutBtn{
+    background:rgba(255,255,255,0.2);
+    padding:8px 15px;
+    border-radius:20px;
+    cursor:pointer;
+    font-size:14px;
+    transition:0.3s;
+}
+
+.logoutBtn:hover{
+    background:rgba(255,255,255,0.3);
+}
+
+.statsContainer{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));
+    gap:15px;
+    margin:15px;
+}
+
+.statCard{
+    background:white;
+    border-radius:15px;
+    padding:20px;
+    text-align:center;
+    box-shadow:0 4px 10px rgba(0,0,0,0.1);
+    transition:0.3s;
+    cursor:pointer;
+}
+
+.statCard:hover{
+    transform:translateY(-5px);
+    box-shadow:0 8px 20px rgba(0,0,0,0.15);
+}
+
+.statCard.active{
+    border:2px solid #ff6a00;
+    background:#fff9f0;
+}
+
+.statIcon{
+    font-size:32px;
+    margin-bottom:10px;
+}
+
+.statValue{
+    font-size:28px;
+    font-weight:bold;
+    color:#ff6a00;
+    margin:10px 0;
+}
+
+.statLabel{
+    color:gray;
+    font-size:12px;
+}
+
+.tabs{
+    margin:15px;
+    display:flex;
+    gap:10px;
+    background:white;
+    padding:5px;
+    border-radius:12px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+
+.tab{
+    flex:1;
+    padding:12px;
+    text-align:center;
+    cursor:pointer;
+    border-radius:8px;
+    transition:0.3s;
+    font-weight:bold;
+}
+
+.tab.active{
+    background:linear-gradient(#ff6a00,#ff9c2f);
+    color:white;
+}
+
+.tab:hover:not(.active){
+    background:#f0f0f0;
+}
+
+.card{
+    margin:15px;
+    background:white;
+    border-radius:15px;
+    padding:20px;
+    box-shadow:0 4px 10px rgba(0,0,0,0.1);
+}
+
+.card h2{
+    margin-bottom:15px;
+    color:#0a2c63;
+    font-size:18px;
+    border-left:4px solid #ff6a00;
+    padding-left:10px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+}
+
+.badge{
+    background:#ff6a00;
+    color:white;
+    padding:4px 12px;
+    border-radius:20px;
+    font-size:12px;
+}
+
+.searchBar{
+    margin-bottom:15px;
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+}
+
+.searchBar input, .searchBar select{
+    flex:1;
+    padding:12px;
+    border:2px solid #e0e0e0;
+    border-radius:8px;
+    font-size:14px;
+    transition:0.3s;
+}
+
+.searchBar input:focus, .searchBar select:focus{
+    border-color:#ff6a00;
+    outline:none;
+}
+
+.searchBar button{
+    padding:12px 20px;
+    background:#1e4f9a;
+    color:white;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+.searchBar button:hover{
+    background:#0a2c63;
+    transform:translateY(-2px);
+}
+
+.tableWrapper{
+    overflow-x:auto;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+th, td{
+    padding:12px;
+    text-align:left;
+    border-bottom:1px solid #eee;
+}
+
+th{
+    background:#f5f5f5;
+    color:#0a2c63;
+    font-weight:bold;
+}
+
+tr:hover{
+    background:#f9f9f9;
+}
+
+.status{
+    padding:4px 12px;
+    border-radius:20px;
+    font-size:12px;
+    font-weight:bold;
+    display:inline-block;
+}
+
+.status-pending{
+    background:#fff3cd;
+    color:#856404;
+}
+
+.status-processing{
+    background:#cce5ff;
+    color:#004085;
+}
+
+.status-completed{
+    background:#d4edda;
+    color:#155724;
+}
+
+.status-failed{
+    background:#f8d7da;
+    color:#721c24;
+}
+
+.action-buttons{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+}
+
+.btn{
+    padding:6px 12px;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+    font-size:12px;
+    transition:0.3s;
+}
+
+.btn-start{
+    background:#3498db;
+    color:white;
+}
+
+.btn-start:hover{
+    background:#2980b9;
+    transform:scale(1.05);
+}
+
+.btn-approve{
+    background:#27ae60;
+    color:white;
+}
+
+.btn-approve:hover{
+    background:#229954;
+    transform:scale(1.05);
+}
+
+.btn-reject{
+    background:#e74c3c;
+    color:white;
+}
+
+.btn-reject:hover{
+    background:#c0392b;
+    transform:scale(1.05);
+}
+
+.btn-edit{
+    background:#ff9c2f;
+    color:white;
+}
+
+.btn-edit:hover{
+    background:#ff6a00;
+}
+
+.btn-delete{
+    background:#95a5a6;
+    color:white;
+}
+
+.btn-delete:hover{
+    background:#7f8c8d;
+}
+
+.btn-save{
+    background:#27ae60;
+    color:white;
+}
+
+.btn-save:hover{
+    background:#229954;
+}
+
+.btn-danger{
+    background:#e74c3c;
+    color:white;
+}
+
+.btn-danger:hover{
+    background:#c0392b;
+}
+
+.btn-secondary{
+    background:#95a5a6;
+    color:white;
+}
+
+.btn-secondary:hover{
+    background:#7f8c8d;
+}
+
+.userItem{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:12px;
+    border-bottom:1px solid #eee;
+    transition:0.3s;
+}
+
+.userItem:hover{
+    background:#f8f9fa;
+}
+
+.userInfo{
+    flex:1;
+}
+
+.userName{
+    font-weight:bold;
+    color:#0a2c63;
+}
+
+.userEmail{
+    font-size:12px;
+    color:gray;
+    margin-top:3px;
+}
+
+.userBalance{
+    font-weight:bold;
+    color:#27ae60;
+    margin-right:15px;
+}
+
+/* Exchange Rate Card */
+.exchangeCard{
+    background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color:white;
+}
+
+.exchangeCard h2{
+    color:white;
+    border-left-color:white;
+}
+
+.exchangeInputGroup{
+    display:flex;
+    gap:15px;
+    flex-wrap:wrap;
+    align-items:flex-end;
+}
+
+.exchangeInputGroup .inputField{
+    flex:1;
+}
+
+.exchangeInputGroup label{
+    display:block;
+    margin-bottom:5px;
+    font-weight:bold;
+    font-size:12px;
+    opacity:0.9;
+}
+
+.exchangeInputGroup input{
+    width:100%;
+    padding:12px;
+    border:2px solid rgba(255,255,255,0.3);
+    border-radius:8px;
+    font-size:16px;
+    background:rgba(255,255,255,0.1);
+    color:white;
+}
+
+.exchangeInputGroup input:focus{
+    outline:none;
+    border-color:white;
+}
+
+.exchangeInputGroup input::placeholder{
+    color:rgba(255,255,255,0.7);
+}
+
+.rateDisplay{
+    margin-top:15px;
+    padding:12px;
+    background:rgba(255,255,255,0.1);
+    border-radius:8px;
+    text-align:center;
+}
+
+.rateDisplay .currentRate{
+    font-size:24px;
+    font-weight:bold;
+    margin:5px 0;
+}
+
+.rateDisplay .lastUpdate{
+    font-size:11px;
+    opacity:0.8;
+}
+
+/* Admin Password Card */
+.passwordCard{
+    background:linear-gradient(135deg, #2c3e50, #1a2632);
+    color:white;
+}
+
+.passwordCard h2{
+    color:white;
+    border-left-color:#ff6a00;
+}
+
+.passwordCard input{
+    background:rgba(255,255,255,0.15);
+    color:white;
+    border-color:rgba(255,255,255,0.3);
+}
+
+.passwordCard input::placeholder{
+    color:rgba(255,255,255,0.6);
+}
+
+.passwordCard .btn-save{
+    background:#27ae60;
+}
+
+.passwordCard .btn-secondary{
+    background:#95a5a6;
+}
+
+.tipsBox{
+    margin-top:15px;
+    padding:12px;
+    background:rgba(255,255,255,0.1);
+    border-radius:8px;
+    text-align:center;
+}
+
+.modal{
+    display:none;
+    position:fixed;
+    z-index:2000;
+    left:0;
+    top:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.5);
+    animation:fadeIn 0.3s;
+}
+
+@keyframes fadeIn{
+    from{opacity:0;}
+    to{opacity:1;}
+}
+
+.modalContent{
+    background:white;
+    margin:5% auto;
+    padding:25px;
+    width:90%;
+    max-width:500px;
+    border-radius:15px;
+    animation:slideDown 0.3s;
+}
+
+@keyframes slideDown{
+    from{
+        transform:translateY(-50px);
+        opacity:0;
+    }
+    to{
+        transform:translateY(0);
+        opacity:1;
+    }
+}
+
+.modalContent h3{
+    color:#0a2c63;
+    margin-bottom:20px;
+    padding-bottom:10px;
+    border-bottom:2px solid #ff6a00;
+}
+
+.modalContent input,
+.modalContent select,
+.modalContent textarea{
+    width:100%;
+    padding:12px;
+    margin-bottom:15px;
+    border:2px solid #e0e0e0;
+    border-radius:8px;
+    font-size:14px;
+}
+
+.modalContent textarea{
+    resize:vertical;
+    min-height:80px;
+}
+
+.modalButtons{
+    display:flex;
+    gap:10px;
+    margin-top:20px;
+}
+
+.notification{
+    position:fixed;
+    top:80px;
+    right:20px;
+    left:20px;
+    padding:12px 20px;
+    border-radius:10px;
+    box-shadow:0 5px 15px rgba(0,0,0,0.2);
+    display:none;
+    z-index:3000;
+    animation:slideIn 0.3s ease-out;
+    text-align:center;
+}
+
+@keyframes slideIn{
+    from{
+        transform:translateX(100%);
+        opacity:0;
+    }
+    to{
+        transform:translateX(0);
+        opacity:1;
+    }
+}
+
+.notification.success{
+    background:#d4edda;
+    color:#155724;
+    border-left:4px solid #27ae60;
+}
+
+.notification.error{
+    background:#f8d7da;
+    color:#721c24;
+    border-left:4px solid #e74c3c;
+}
+
+.notification.info{
+    background:#d1ecf1;
+    color:#0c5460;
+    border-left:4px solid #17a2b8;
+}
+
+.bottomNav{
+    position:fixed;
+    bottom:0;
+    left:0;
+    right:0;
+    width:100%;
+    background:linear-gradient(#1e4f9a,#0a2c63);
+    display:flex;
+    justify-content:space-around;
+    align-items:center;
+    padding:12px 0;
+    transition:0.3s;
+    z-index:999;
+}
+
+.bottomNav.hide{
+    bottom:-70px;
+}
+
+.bottomNav a{
+    color:white;
+    text-decoration:none;
+    text-align:center;
+    font-size:14px;
+    transition:0.3s;
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:5px;
+}
+
+.bottomNav a:hover{
+    transform:translateY(-3px);
+}
+
+.bottomNav div{
+    font-size:22px;
+}
+
+@media (max-width: 768px){
+    .action-buttons{
+        flex-direction:column;
+        gap:5px;
+    }
+    
+    .statsContainer{
+        grid-template-columns:repeat(2, 1fr);
+    }
+    
+    .modalContent{
+        margin:20% auto;
+    }
+    
+    .exchangeInputGroup{
+        flex-direction:column;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+    <div class="header-left">
+        <span>👑</span>
+        <span>Admin Dashboard</span>
+    </div>
+    <div class="logoutBtn" onclick="logout()">🚪 Logout</div>
+</div>
+
+<!-- Stats Cards -->
+<div class="statsContainer">
+    <div class="statCard" onclick="filterByStatus('pending')">
+        <div class="statIcon">⏳</div>
+        <div class="statValue" id="pendingCount">0</div>
+        <div class="statLabel">Pending</div>
+    </div>
+    <div class="statCard" onclick="filterByStatus('processing')">
+        <div class="statIcon">🔄</div>
+        <div class="statValue" id="processingCount">0</div>
+        <div class="statLabel">Processing</div>
+    </div>
+    <div class="statCard" onclick="filterByStatus('completed')">
+        <div class="statIcon">✅</div>
+        <div class="statValue" id="completedCount">0</div>
+        <div class="statLabel">Completed</div>
+    </div>
+    <div class="statCard" onclick="filterByStatus('failed')">
+        <div class="statIcon">❌</div>
+        <div class="statValue" id="failedCount">0</div>
+        <div class="statLabel">Failed</div>
+    </div>
+    <div class="statCard" onclick="filterByStatus('all')">
+        <div class="statIcon">💰</div>
+        <div class="statValue" id="totalVolume">$0</div>
+        <div class="statLabel">Total Volume</div>
+    </div>
+</div>
+
+<!-- Exchange Rate Management Card -->
+<div class="card exchangeCard">
+    <h2>💱 Currency Exchange Rate Management</h2>
+    <div class="exchangeInputGroup">
+        <div class="inputField">
+            <label>🇺🇸 USD to 🇵🇭 PHP Exchange Rate</label>
+            <input type="number" id="exchangeRateInput" step="0.01" placeholder="Enter exchange rate">
+            <small style="display:block; margin-top:5px; opacity:0.8;">1 USD = ? PHP</small>
+        </div>
+        <div>
+            <button class="btn btn-save" onclick="updateExchangeRate()" style="padding:12px 25px;">💾 Update Rate</button>
+        </div>
+    </div>
+    <div class="rateDisplay">
+        <div style="font-size:12px; opacity:0.8;">Current Exchange Rate</div>
+        <div class="currentRate" id="currentRateDisplay">1 USD = 56.50 PHP</div>
+        <div class="lastUpdate" id="rateLastUpdate">Last updated: Just now</div>
+    </div>
+</div>
+
+<!-- Admin Password Management Card -->
+<div class="card passwordCard">
+    <h2>🔐 Admin Password Management</h2>
+    <div class="exchangeInputGroup">
+        <div class="inputField">
+            <label>Current Password</label>
+            <input type="password" id="currentAdminPass" placeholder="Enter current password">
+        </div>
+        <div class="inputField">
+            <label>New Password</label>
+            <input type="password" id="newAdminPass" placeholder="Enter new password (min. 6 characters)">
+        </div>
+        <div class="inputField">
+            <label>Confirm New Password</label>
+            <input type="password" id="confirmAdminPass" placeholder="Confirm new password">
+        </div>
+        <div style="display:flex; gap:10px;">
+            <button class="btn btn-save" onclick="updateAdminPassword()">🔐 Change Password</button>
+            <button class="btn btn-secondary" onclick="resetAdminPassword()">🔄 Reset to Default</button>
+        </div>
+    </div>
+    <div class="tipsBox">
+        <div style="font-size:12px;">💡 Password Tips:</div>
+        <div style="font-size:11px; margin-top:5px;">• Use at least 6 characters<br>• Mix letters and numbers<br>• Don't share your password</div>
+    </div>
+</div>
+
+<!-- Tabs -->
+<div class="tabs">
+    <div class="tab active" onclick="switchTab('all')">📋 All Transactions</div>
+    <div class="tab" onclick="switchTab('users')">👥 Users</div>
+</div>
+
+<!-- All Transactions Section -->
+<div id="allSection" class="card">
+    <h2>📋 All Transactions <span class="badge" id="totalBadge">0</span></h2>
+    <div class="searchBar">
+        <input type="text" id="allSearch" placeholder="Search by receiver, user or email...">
+        <select id="statusFilter" onchange="filterByStatusSelect()">
+            <option value="all">All Status</option>
+            <option value="pending">⏳ Pending</option>
+            <option value="processing">🔄 Processing</option>
+            <option value="completed">✅ Completed</option>
+            <option value="failed">❌ Failed</option>
+        </select>
+        <button onclick="searchAll()">🔍 Search</button>
+        <button onclick="resetAllFilters()">🔄 Reset</button>
+    </div>
+    <div class="tableWrapper">
+        <table id="allTable">
+            <thead>
+                <tr><th>ID</th><th>User</th><th>Receiver</th><th>Amount</th><th>Method</th><th>Status</th><th>Date</th><th>Actions</th>从这里
+            </thead>
+            <tbody id="allList"></tbody>
+         </table
+    </div>
+</div>
+
+<!-- Users Section -->
+<div id="usersSection" class="card" style="display:none;">
+    <h2>👥 User Management</h2>
+    <div class="searchBar">
+        <input type="text" id="userSearch" placeholder="Search by name or email...">
+        <button onclick="searchUsers()">🔍 Search</button>
+        <button onclick="showAddUserModal()">➕ Add User</button>
+    </div>
+    <div id="userList"></div>
+</div>
+
+<!-- Process Transaction Modal -->
+<div id="processModal" class="modal">
+    <div class="modalContent">
+        <h3>🔄 Process Transaction</h3>
+        <div id="processDetails"></div>
+        <div class="modalButtons">
+            <button class="btn-start" onclick="startProcessing()">🔄 Start Processing</button>
+            <button class="btn-approve" onclick="approveTransaction()">✅ Approve</button>
+            <button class="btn-reject" onclick="rejectTransaction()">❌ Reject</button>
+            <button class="btn-secondary" onclick="closeProcessModal()">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Transaction Modal -->
+<div id="editTransactionModal" class="modal">
+    <div class="modalContent">
+        <h3>✏️ Edit Transaction</h3>
+        <input type="hidden" id="editTransId">
+        <input type="text" id="editReceiver" placeholder="Receiver Name">
+        <input type="number" id="editAmount" step="0.01" placeholder="Amount">
+        <select id="editMethod">
+            <option value="GCash">GCash</option>
+            <option value="Bank Transfer">Bank Transfer</option>
+            <option value="Cash Pickup">Cash Pickup</option>
+            <option value="PayPal">PayPal</option>
+        </select>
+        <textarea id="editNote" placeholder="Note"></textarea>
+        <select id="editStatus">
+            <option value="pending">⏳ Pending</option>
+            <option value="processing">🔄 Processing</option>
+            <option value="completed">✅ Completed</option>
+            <option value="failed">❌ Failed</option>
+        </select>
+        <div class="modalButtons">
+            <button class="btn-save" onclick="updateTransaction()">💾 Save</button>
+            <button class="btn-secondary" onclick="closeEditTransactionModal()">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- Add User Modal -->
+<div id="addUserModal" class="modal">
+    <div class="modalContent">
+        <h3>➕ Add New User</h3>
+        <input type="text" id="newUserName" placeholder="Full Name">
+        <input type="email" id="newUserEmail" placeholder="Email">
+        <input type="password" id="newUserPassword" placeholder="Password">
+        <input type="number" id="newUserBalance" placeholder="Initial Balance" value="0">
+        <div class="modalButtons">
+            <button class="btn-save" onclick="addUser()">Add User</button>
+            <button class="btn-secondary" onclick="closeAddUserModal()">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- Edit User Modal -->
+<div id="editUserModal" class="modal">
+    <div class="modalContent">
+        <h3>✏️ Edit User</h3>
+        <input type="hidden" id="editUserId">
+        <input type="text" id="editUserName" placeholder="Full Name">
+        <input type="email" id="editUserEmail" placeholder="Email">
+        <input type="number" id="editUserBalance" placeholder="Balance">
+        <div class="modalButtons">
+            <button class="btn-save" onclick="updateUser()">Update</button>
+            <button class="btn-danger" onclick="deleteUserFromModal()">Delete</button>
+            <button class="btn-secondary" onclick="closeEditUserModal()">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- Bottom Nav -->
+<div class="bottomNav" id="bottomNav">
+    <a href="home.html"><div>🏠</div><span>Home</span></a>
+    <a href="send.html"><div>💳</div><span>Send</span></a>
+    <a href="history.html"><div>📜</div><span>History</span></a>
+    <a href="profile.html"><div>👤</div><span>Profile</span></a>
+</div>
+
+<script>
+let allTransactions = [];
+let allUsers = [];
+let currentTransactionToProcess = null;
+let currentFilterStatus = 'all';
+
+// Initialize Admin Data
+function initAdminData() {
+    console.log('Initializing admin data...');
+    
+    // Initialize exchange rate if not exists
+    let rate = localStorage.getItem('exchangeRate');
+    let lastUpdate = localStorage.getItem('exchangeRateLastUpdate');
+    if(!rate) {
+        rate = '56.50';
+        lastUpdate = new Date().toLocaleString();
+        localStorage.setItem('exchangeRate', rate);
+        localStorage.setItem('exchangeRateLastUpdate', lastUpdate);
+        console.log('Exchange rate initialized:', rate);
+    }
+    
+    // Load users
+    let storedUsers = localStorage.getItem('allUsers');
+    if(storedUsers) {
+        allUsers = JSON.parse(storedUsers);
+    } else {
+        allUsers = [
+            {
+                id: 1,
+                name: 'Ship Remit User',
+                email: 'user@email.com',
+                password: '123456',
+                balance: 1000,
+                createdAt: new Date().toISOString()
+            }
+        ];
+        saveUsers();
+    }
+    
+    // Load transactions
+    let storedTransactions = localStorage.getItem('allTransactions');
+    if(storedTransactions) {
+        allTransactions = JSON.parse(storedTransactions);
+    } else {
+        allTransactions = [];
+        saveTransactions();
+    }
+    
+    // Display exchange rate
+    displayExchangeRate();
+    
+    updateStats();
+    displayAllTransactions();
+    displayUsers();
+}
+
+function saveUsers() {
+    localStorage.setItem('allUsers', JSON.stringify(allUsers));
+}
+
+function saveTransactions() {
+    localStorage.setItem('allTransactions', JSON.stringify(allTransactions));
+    updateUserTransactions();
+}
+
+function updateUserTransactions() {
+    let currentUserEmail = localStorage.getItem('userEmail');
+    if(currentUserEmail) {
+        let userTransactions = allTransactions.filter(t => t.userEmail === currentUserEmail);
+        localStorage.setItem('transactions', JSON.stringify(userTransactions));
+    }
+}
+
+// Display Exchange Rate - FIXED
+function displayExchangeRate() {
+    let rate = localStorage.getItem('exchangeRate');
+    let lastUpdate = localStorage.getItem('exchangeRateLastUpdate');
+    
+    if(!rate) {
+        rate = '56.50';
+        lastUpdate = new Date().toLocaleString();
+        localStorage.setItem('exchangeRate', rate);
+        localStorage.setItem('exchangeRateLastUpdate', lastUpdate);
+    }
+    
+    document.getElementById('currentRateDisplay').innerHTML = `1 USD = ${parseFloat(rate).toFixed(2)} PHP`;
+    document.getElementById('rateLastUpdate').innerHTML = `Last updated: ${lastUpdate}`;
+    document.getElementById('exchangeRateInput').value = '';
+}
+
+// Update Exchange Rate
+function updateExchangeRate() {
+    let newRate = parseFloat(document.getElementById('exchangeRateInput').value);
+    
+    if(!newRate || newRate <= 0) {
+        showNotification('Please enter a valid exchange rate', 'error');
+        return;
+    }
+    
+    let currentRate = parseFloat(localStorage.getItem('exchangeRate') || '56.50');
+    
+    if(confirm(`Update exchange rate from 1 USD = ${currentRate.toFixed(2)} PHP to 1 USD = ${newRate.toFixed(2)} PHP?\n\nThis will affect all users' converted balance display.`)) {
+        localStorage.setItem('exchangeRate', newRate);
+        localStorage.setItem('exchangeRateLastUpdate', new Date().toLocaleString());
+        
+        displayExchangeRate();
+        document.getElementById('exchangeRateInput').value = '';
+        showNotification(`Exchange rate updated to 1 USD = ${newRate.toFixed(2)} PHP`, 'success');
+    }
+}
+
+// Admin Password Functions
+function updateAdminPassword() {
+    let currentPassword = document.getElementById('currentAdminPass').value;
+    let newPassword = document.getElementById('newAdminPass').value;
+    let confirmPassword = document.getElementById('confirmAdminPass').value;
+    
+    let storedPassword = localStorage.getItem('adminPassword');
+    if(!storedPassword) {
+        storedPassword = 'admin123';
+    }
+    
+    if(!currentPassword) {
+        showNotification('Please enter current password', 'error');
+        return;
+    }
+    
+    if(currentPassword !== storedPassword) {
+        showNotification('Current password is incorrect!', 'error');
+        return;
+    }
+    
+    if(!newPassword) {
+        showNotification('Please enter new password', 'error');
+        return;
+    }
+    
+    if(newPassword.length < 6) {
+        showNotification('New password must be at least 6 characters!', 'error');
+        return;
+    }
+    
+    if(newPassword !== confirmPassword) {
+        showNotification('New passwords do not match!', 'error');
+        return;
+    }
+    
+    localStorage.setItem('adminPassword', newPassword);
+    
+    document.getElementById('currentAdminPass').value = '';
+    document.getElementById('newAdminPass').value = '';
+    document.getElementById('confirmAdminPass').value = '';
+    
+    showNotification('Admin password changed successfully!', 'success');
+}
+
+function resetAdminPassword() {
+    if(confirm('Reset admin password to default "admin123"?')) {
+        localStorage.setItem('adminPassword', 'admin123');
+        
+        document.getElementById('currentAdminPass').value = '';
+        document.getElementById('newAdminPass').value = '';
+        document.getElementById('confirmAdminPass').value = '';
+        
+        showNotification('Password reset to default: admin123', 'info');
+    }
+}
+
+function updateStats() {
+    let pending = allTransactions.filter(t => t.status === 'pending').length;
+    let processing = allTransactions.filter(t => t.status === 'processing').length;
+    let completed = allTransactions.filter(t => t.status === 'completed').length;
+    let failed = allTransactions.filter(t => t.status === 'failed').length;
+    let totalVolume = allTransactions.reduce((sum, t) => sum + t.amount, 0);
+    
+    document.getElementById('pendingCount').textContent = pending;
+    document.getElementById('processingCount').textContent = processing;
+    document.getElementById('completedCount').textContent = completed;
+    document.getElementById('failedCount').textContent = failed;
+    document.getElementById('totalVolume').textContent = `$${totalVolume.toFixed(2)}`;
+    document.getElementById('totalBadge').textContent = allTransactions.length;
+}
+
+function displayAllTransactions() {
+    let filteredTransactions = [...allTransactions];
+    let searchTerm = document.getElementById('allSearch')?.value.toLowerCase() || '';
+    let statusFilter = currentFilterStatus;
+    
+    if(document.getElementById('statusFilter') && currentFilterStatus === 'all') {
+        statusFilter = document.getElementById('statusFilter').value;
+    }
+    
+    if(searchTerm) {
+        filteredTransactions = filteredTransactions.filter(t => 
+            t.receiver.toLowerCase().includes(searchTerm) || 
+            t.userEmail.toLowerCase().includes(searchTerm) ||
+            (t.note && t.note.toLowerCase().includes(searchTerm))
+        );
+    }
+    
+    if(statusFilter !== 'all') {
+        filteredTransactions = filteredTransactions.filter(t => t.status === statusFilter);
+    }
+    
+    let tbody = document.getElementById('allList');
+    
+    if(filteredTransactions.length === 0) {
+        tbody.innerHTML = '编码<td colspan="8" style="text-align:center; padding:40px;">📭 No transactions found</td> </tr>';
+        return;
+    }
+    
+    tbody.innerHTML = filteredTransactions.map(t => {
+        let statusText = '';
+        if(t.status === 'pending') statusText = '⏳ Pending';
+        else if(t.status === 'processing') statusText = '🔄 Processing';
+        else if(t.status === 'completed') statusText = '✅ Completed';
+        else statusText = '❌ Failed';
+        
+        return `
+            <tr>
+                <td>${t.id}</td>
+                <td>${escapeHtml(t.userEmail)}</td>
+                <td><strong>${escapeHtml(t.receiver)}</strong>${t.note ? `<br><small>📝 ${escapeHtml(t.note.substring(0, 20))}</small>` : ''}</td>
+                <td>$${t.amount.toFixed(2)}</td>
+                <td>${t.method}</td>
+                <td><span class="status status-${t.status}">${statusText}</span></td>
+                <td><small>${t.date}</small></td>
+                <td class="action-buttons">
+                    ${t.status === 'pending' ? `<button class="btn btn-start" onclick="openProcessModal(${t.id})">🔄 Start</button>` : ''}
+                    ${t.status === 'processing' ? `<button class="btn btn-approve" onclick="approveTransactionById(${t.id})">✅ Approve</button>` : ''}
+                    ${t.status === 'processing' ? `<button class="btn btn-reject" onclick="rejectTransactionById(${t.id})">❌ Reject</button>` : ''}
+                    <button class="btn btn-edit" onclick="editTransaction(${t.id})">✏️ Edit</button>
+                    <button class="btn btn-delete" onclick="deleteTransaction(${t.id})">🗑️ Delete</button>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function openProcessModal(transactionId) {
+    currentTransactionToProcess = allTransactions.find(t => t.id === transactionId);
+    if(currentTransactionToProcess) {
+        document.getElementById('processDetails').innerHTML = `
+            <p><strong>User:</strong> ${currentTransactionToProcess.userEmail}</p>
+            <p><strong>Receiver:</strong> ${currentTransactionToProcess.receiver}</p>
+            <p><strong>Amount:</strong> $${currentTransactionToProcess.amount.toFixed(2)}</p>
+            <p><strong>Method:</strong> ${currentTransactionToProcess.method}</p>
+            ${currentTransactionToProcess.note ? `<p><strong>Note:</strong> ${currentTransactionToProcess.note}</p>` : ''}
+            <p style="color:#ff6a00; margin-top:10px;"><strong>Step 1/2:</strong> Click "Start Processing" to begin review</p>
+        `;
+        document.getElementById('processModal').style.display = 'block';
+    }
+}
+
+function startProcessing() {
+    if(currentTransactionToProcess && currentTransactionToProcess.status === 'pending') {
+        currentTransactionToProcess.status = 'processing';
+        saveTransactions();
+        updateStats();
+        displayAllTransactions();
+        showNotification(`Transaction #${currentTransactionToProcess.id} is now in PROCESSING status`, 'info');
+        closeProcessModal();
+    }
+}
+
+function approveTransaction() {
+    if(currentTransactionToProcess && currentTransactionToProcess.status === 'processing') {
+        currentTransactionToProcess.status = 'completed';
+        saveTransactions();
+        updateStats();
+        displayAllTransactions();
+        showNotification(`Transaction #${currentTransactionToProcess.id} approved and completed!`, 'success');
+        closeProcessModal();
+    }
+}
+
+function approveTransactionById(transactionId) {
+    let transaction = allTransactions.find(t => t.id === transactionId);
+    if(transaction && transaction.status === 'processing') {
+        transaction.status = 'completed';
+        saveTransactions();
+        updateStats();
+        displayAllTransactions();
+        showNotification(`Transaction #${transactionId} approved and completed!`, 'success');
+    }
+}
+
+function rejectTransaction() {
+    if(currentTransactionToProcess && currentTransactionToProcess.status === 'processing') {
+        let user = allUsers.find(u => u.email === currentTransactionToProcess.userEmail);
+        if(user) {
+            user.balance += currentTransactionToProcess.amount;
+            saveUsers();
+        }
+        
+        currentTransactionToProcess.status = 'failed';
+        saveTransactions();
+        updateStats();
+        displayAllTransactions();
+        showNotification(`Transaction #${currentTransactionToProcess.id} rejected and refunded!`, 'error');
+        closeProcessModal();
+    }
+}
+
+function rejectTransactionById(transactionId) {
+    let transaction = allTransactions.find(t => t.id === transactionId);
+    if(transaction && transaction.status === 'processing') {
+        let user = allUsers.find(u => u.email === transaction.userEmail);
+        if(user) {
+            user.balance += transaction.amount;
+            saveUsers();
+        }
+        
+        transaction.status = 'failed';
+        saveTransactions();
+        updateStats();
+        displayAllTransactions();
+        showNotification(`Transaction #${transactionId} rejected and refunded!`, 'error');
+    }
+}
+
+function editTransaction(transactionId) {
+    let transaction = allTransactions.find(t => t.id === transactionId);
+    if(transaction) {
+        document.getElementById('editTransId').value = transaction.id;
+        document.getElementById('editReceiver').value = transaction.receiver;
+        document.getElementById('editAmount').value = transaction.amount;
+        document.getElementById('editMethod').value = transaction.method;
+        document.getElementById('editNote').value = transaction.note || '';
+        document.getElementById('editStatus').value = transaction.status;
+        document.getElementById('editTransactionModal').style.display = 'block';
+    }
+}
+
+function updateTransaction() {
+    let transactionId = parseInt(document.getElementById('editTransId').value);
+    let transaction = allTransactions.find(t => t.id === transactionId);
+    
+    if(transaction) {
+        let oldAmount = transaction.amount;
+        let newAmount = parseFloat(document.getElementById('editAmount').value);
+        let oldStatus = transaction.status;
+        let newStatus = document.getElementById('editStatus').value;
+        
+        transaction.receiver = document.getElementById('editReceiver').value;
+        transaction.amount = newAmount;
+        transaction.method = document.getElementById('editMethod').value;
+        transaction.note = document.getElementById('editNote').value;
+        
+        if(oldAmount !== newAmount && transaction.status !== 'failed') {
+            let user = allUsers.find(u => u.email === transaction.userEmail);
+            if(user) {
+                user.balance = user.balance + oldAmount - newAmount;
+                saveUsers();
+            }
+        }
+        
+        transaction.status = newStatus;
+        
+        if(oldStatus === 'processing' && newStatus === 'failed') {
+            let user = allUsers.find(u => u.email === transaction.userEmail);
+            if(user) {
+                user.balance += transaction.amount;
+                saveUsers();
+            }
+        }
+        
+        saveTransactions();
+        updateStats();
+        displayAllTransactions();
+        closeEditTransactionModal();
+        showNotification('Transaction updated successfully!', 'success');
+    }
+}
+
+function deleteTransaction(transactionId) {
+    if(confirm('Delete this transaction? This action cannot be undone.')) {
+        let transaction = allTransactions.find(t => t.id === transactionId);
+        if(transaction && (transaction.status === 'pending' || transaction.status === 'processing')) {
+            let user = allUsers.find(u => u.email === transaction.userEmail);
+            if(user) {
+                user.balance += transaction.amount;
+                saveUsers();
+            }
+        }
+        
+        allTransactions = allTransactions.filter(t => t.id !== transactionId);
+        saveTransactions();
+        updateStats();
+        displayAllTransactions();
+        showNotification('Transaction deleted successfully!', 'success');
+    }
+}
+
+function filterByStatus(status) {
+    currentFilterStatus = status;
+    document.getElementById('statusFilter').value = status;
+    displayAllTransactions();
+    
+    document.querySelectorAll('.statCard').forEach(card => {
+        card.classList.remove('active');
+    });
+    if(event && event.target) {
+        let clickedCard = event.target.closest('.statCard');
+        if(clickedCard) clickedCard.classList.add('active');
+    }
+}
+
+function filterByStatusSelect() {
+    currentFilterStatus = document.getElementById('statusFilter').value;
+    displayAllTransactions();
+}
+
+function searchAll() {
+    displayAllTransactions();
+}
+
+function resetAllFilters() {
+    document.getElementById('allSearch').value = '';
+    document.getElementById('statusFilter').value = 'all';
+    currentFilterStatus = 'all';
+    displayAllTransactions();
+}
+
+function displayUsers() {
+    let filteredUsers = [...allUsers];
+    let searchTerm = document.getElementById('userSearch')?.value.toLowerCase() || '';
+    
+    if(searchTerm) {
+        filteredUsers = filteredUsers.filter(u => 
+            u.name.toLowerCase().includes(searchTerm) || 
+            u.email.toLowerCase().includes(searchTerm)
+        );
+    }
+    
+    let userList = document.getElementById('userList');
+    
+    if(filteredUsers.length === 0) {
+        userList.innerHTML = '<div style="text-align:center; padding:40px;">👥 No users found</div>';
+        return;
+    }
+    
+    userList.innerHTML = filteredUsers.map(user => `
+        <div class="userItem">
+            <div class="userInfo">
+                <div class="userName">${escapeHtml(user.name)}</div>
+                <div class="userEmail">${user.email}</div>
+                <div style="font-size:11px; color:gray;">Member since: ${new Date(user.createdAt).toLocaleDateString()}</div>
+            </div>
+            <div class="userBalance">$${user.balance.toFixed(2)}</div>
+            <div class="action-buttons">
+                <button class="btn btn-edit" onclick="editUser(${user.id})">✏️ Edit</button>
+                <button class="btn btn-delete" onclick="deleteUser(${user.id})">🗑️ Delete</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+function searchUsers() {
+    displayUsers();
+}
+
+function addUser() {
+    let name = document.getElementById('newUserName').value.trim();
+    let email = document.getElementById('newUserEmail').value.trim();
+    let password = document.getElementById('newUserPassword').value;
+    let balance = parseFloat(document.getElementById('newUserBalance').value);
+    
+    if(!name || !email || !password) {
+        showNotification('Please fill all required fields', 'error');
+        return;
+    }
+    
+    if(allUsers.some(u => u.email === email)) {
+        showNotification('Email already exists!', 'error');
+        return;
+    }
+    
+    let newUser = {
+        id: Date.now(),
+        name: name,
+        email: email,
+        password: password,
+        balance: balance,
+        createdAt: new Date().toISOString()
+    };
+    
+    allUsers.push(newUser);
+    saveUsers();
+    updateStats();
+    displayUsers();
+    closeAddUserModal();
+    showNotification(`User ${name} added successfully!`, 'success');
+    
+    document.getElementById('newUserName').value = '';
+    document.getElementById('newUserEmail').value = '';
+    document.getElementById('newUserPassword').value = '';
+    document.getElementById('newUserBalance').value = '';
+}
+
+function editUser(userId) {
+    let user = allUsers.find(u => u.id === userId);
+    if(user) {
+        document.getElementById('editUserId').value = user.id;
+        document.getElementById('editUserName').value = user.name;
+        document.getElementById('editUserEmail').value = user.email;
+        document.getElementById('editUserBalance').value = user.balance;
+        document.getElementById('editUserModal').style.display = 'block';
+    }
+}
+
+function updateUser() {
+    let userId = parseInt(document.getElementById('editUserId').value);
+    let user = allUsers.find(u => u.id === userId);
+    
+    if(user) {
+        let oldEmail = user.email;
+        user.name = document.getElementById('editUserName').value;
+        user.email = document.getElementById('editUserEmail').value;
+        user.balance = parseFloat(document.getElementById('editUserBalance').value);
+        
+        allTransactions.forEach(t => {
+            if(t.userEmail === oldEmail) {
+                t.userEmail = user.email;
+            }
+        });
+        
+        if(localStorage.getItem('userEmail') === oldEmail) {
+            localStorage.setItem('userEmail', user.email);
+            localStorage.setItem('userName', user.name);
+            localStorage.setItem('userBalance', user.balance);
+        }
+        
+        saveUsers();
+        saveTransactions();
+        displayUsers();
+        closeEditUserModal();
+        showNotification('User updated successfully!', 'success');
+    }
+}
+
+function deleteUser(userId) {
+    if(confirm('Delete this user? All their transactions will also be deleted.')) {
+        let user = allUsers.find(u => u.id === userId);
+        if(user) {
+            allTransactions = allTransactions.filter(t => t.userEmail !== user.email);
+            allUsers = allUsers.filter(u => u.id !== userId);
+            saveUsers();
+            saveTransactions();
+            updateStats();
+            displayUsers();
+            displayAllTransactions();
+            showNotification('User deleted successfully!', 'success');
+        }
+    }
+}
+
+function deleteUserFromModal() {
+    let userId = parseInt(document.getElementById('editUserId').value);
+    deleteUser(userId);
+    closeEditUserModal();
+}
+
+function switchTab(tab) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('allSection').style.display = 'none';
+    document.getElementById('usersSection').style.display = 'none';
+    
+    if(tab === 'all') {
+        document.querySelectorAll('.tab')[0].classList.add('active');
+        document.getElementById('allSection').style.display = 'block';
+        displayAllTransactions();
+    } else if(tab === 'users') {
+        document.querySelectorAll('.tab')[1].classList.add('active');
+        document.getElementById('usersSection').style.display = 'block';
+        displayUsers();
+    }
+}
+
+function closeProcessModal() {
+    document.getElementById('processModal').style.display = 'none';
+    currentTransactionToProcess = null;
+}
+
+function closeEditTransactionModal() {
+    document.getElementById('editTransactionModal').style.display = 'none';
+}
+
+function showAddUserModal() {
+    document.getElementById('addUserModal').style.display = 'block';
+}
+
+function closeAddUserModal() {
+    document.getElementById('addUserModal').style.display = 'none';
+}
+
+function closeEditUserModal() {
+    document.getElementById('editUserModal').style.display = 'none';
+}
+
+function escapeHtml(text) {
+    if(!text) return '';
+    return text.replace(/[&<>]/g, function(m) {
+        if(m === '&') return '&amp;';
+        if(m === '<') return '&lt;';
+        if(m === '>') return '&gt;';
+        return m;
+    });
+}
+
+function showNotification(message, type) {
+    let notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.innerHTML = message;
+    document.body.appendChild(notification);
+    notification.style.display = 'block';
+    
+    setTimeout(() => {
+        notification.style.opacity = '0';
+        setTimeout(() => {
+            notification.remove();
+        }, 300);
+    }, 3000);
+}
+
+function logout() {
+    if(confirm('Logout from admin dashboard?')) {
+        localStorage.removeItem('isAdminLoggedIn');
+        window.location.href = 'admin-login.html';
+    }
+}
+
+window.onclick = function(event) {
+    if(event.target.classList.contains('modal')) {
+        event.target.style.display = 'none';
+    }
+}
+
+let lastScroll = 0;
+let bottomNav = document.getElementById("bottomNav");
+
+window.addEventListener("scroll", function(){
+    let currentScroll = window.pageYOffset;
+    if(currentScroll <= 0){
+        bottomNav.classList.remove("hide");
+        return;
+    }
+    if(currentScroll > lastScroll){
+        bottomNav.classList.add("hide");
+    }else{
+        bottomNav.classList.remove("hide");
+    }
+    lastScroll = currentScroll;
+});
+
+// Check admin login
+if(!localStorage.getItem('isAdminLoggedIn')) {
+    window.location.href = 'admin-login.html';
+}
+
+// Initialize
+initAdminData();
+</script>
+</body>
+</html>
