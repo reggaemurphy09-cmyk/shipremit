@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ship Remit - Home</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family: Arial, sans-serif;
+}
+
+body{
+    background:#e9eef5;
+    padding-top:70px;
+    padding-bottom:70px;
+}
+
+.header{
+    position:fixed;
+    top:0;
+    width:100%;
+    background:linear-gradient(#0a2c63,#1e4f9a);
+    color:white;
+    padding:18px;
+    font-size:22px;
+    font-weight:bold;
+    z-index:1000;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding-left:20px;
+    padding-right:20px;
+}
+
+.header-left{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.header-right{
+    display:flex;
+    gap:15px;
+}
+
+.header-right span{
+    cursor:pointer;
+    font-size:20px;
+    transition:0.3s;
+}
+
+.header-right span:hover{
+    transform:scale(1.1);
+}
+
+.welcomeCard{
+    margin:15px;
+    background:linear-gradient(135deg, #1e4f9a, #0a2c63);
+    color:white;
+    border-radius:15px;
+    padding:20px;
+    box-shadow:0 4px 10px rgba(0,0,0,0.2);
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:15px;
+}
+
+.welcomeText{
+    flex:1;
+}
+
+.welcomeText .greeting{
+    font-size:14px;
+    opacity:0.9;
+    margin-bottom:5px;
+}
+
+.welcomeText .userName{
+    font-size:24px;
+    font-weight:bold;
+}
+
+.exchangeRateCard{
+    background:rgba(255,255,255,0.2);
+    border-radius:12px;
+    padding:12px 20px;
+    text-align:center;
+    backdrop-filter:blur(10px);
+    min-width:180px;
+}
+
+.exchangeRateCard .label{
+    font-size:11px;
+    opacity:0.8;
+    margin-bottom:5px;
+}
+
+.exchangeRateCard .rate{
+    font-size:20px;
+    font-weight:bold;
+    margin-bottom:5px;
+}
+
+.exchangeRateCard .lastUpdate{
+    font-size:9px;
+    opacity:0.7;
+}
+
+.balanceCard{
+    margin:15px;
+    background:linear-gradient(135deg, #ff9c2f, #ff6a00);
+    color:white;
+    border-radius:15px;
+    padding:25px;
+    text-align:center;
+    box-shadow:0 4px 15px rgba(0,0,0,0.2);
+}
+
+.balanceLabel{
+    font-size:14px;
+    opacity:0.9;
+    margin-bottom:10px;
+}
+
+.balance{
+    font-size:42px;
+    font-weight:bold;
+    margin-bottom:10px;
+}
+
+.currencySymbol{
+    font-size:32px;
+}
+
+.balanceConverted{
+    font-size:14px;
+    opacity:0.8;
+    margin-top:10px;
+    padding-top:10px;
+    border-top:1px solid rgba(255,255,255,0.3);
+}
+
+.accountNumber{
+    font-size:12px;
+    opacity:0.8;
+    margin-top:10px;
+}
+
+.statsContainer{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:10px;
+    margin:15px;
+}
+
+.statCard{
+    background:white;
+    border-radius:12px;
+    padding:15px;
+    text-align:center;
+    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+    transition:0.3s;
+    cursor:pointer;
+}
+
+.statCard:hover{
+    transform:translateY(-3px);
+    box-shadow:0 4px 12px rgba(0,0,0,0.15);
+}
+
+.statValue{
+    font-size:20px;
+    font-weight:bold;
+    color:#0a2c63;
+    margin-bottom:5px;
+}
+
+.statLabel{
+    font-size:11px;
+    color:gray;
+}
+
+/* Action Buttons Grid - 4 Cards */
+.actionGrid{
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    gap:12px;
+    margin:15px;
+}
+
+.actionCard{
+    border-radius:12px;
+    padding:20px 10px;
+    text-align:center;
+    cursor:pointer;
+    transition:0.3s;
+    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+    color:white;
+}
+
+.actionCard:hover{
+    transform:translateY(-5px);
+    box-shadow:0 8px 20px rgba(0,0,0,0.2);
+}
+
+.actionCard.send{
+    background:linear-gradient(135deg, #2ecc71, #27ae60);
+}
+
+.actionCard.transactions{
+    background:linear-gradient(135deg, #3498db, #2980b9);
+}
+
+.actionCard.upload{
+    background:linear-gradient(135deg, #9b59b6, #8e44ad);
+}
+
+.actionCard.history{
+    background:linear-gradient(135deg, #e74c3c, #c0392b);
+}
+
+.actionIcon{
+    font-size:32px;
+    margin-bottom:10px;
+}
+
+.actionTitle{
+    font-weight:bold;
+    margin-bottom:5px;
+    font-size:14px;
+}
+
+.actionDesc{
+    font-size:11px;
+    opacity:0.9;
+}
+
+.bottomNav{
+    position:fixed;
+    bottom:0;
+    left:0;
+    right:0;
+    width:100%;
+    background:linear-gradient(#1e4f9a,#0a2c63);
+    display:flex;
+    justify-content:space-around;
+    align-items:center;
+    padding:12px 0;
+    transition:0.3s;
+    z-index:999;
+}
+
+.bottomNav.hide{
+    bottom:-70px;
+}
+
+.bottomNav a{
+    color:white;
+    text-decoration:none;
+    text-align:center;
+    font-size:14px;
+    transition:0.3s;
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:5px;
+}
+
+.bottomNav a:hover{
+    transform:translateY(-3px);
+}
+
+.bottomNav div{
+    font-size:22px;
+}
+
+.notification{
+    position:fixed;
+    top:80px;
+    right:20px;
+    left:20px;
+    padding:12px 20px;
+    border-radius:10px;
+    box-shadow:0 5px 15px rgba(0,0,0,0.2);
+    display:none;
+    z-index:2000;
+    animation:slideIn 0.3s ease-out;
+    text-align:center;
+}
+
+@keyframes slideIn{
+    from{
+        transform:translateX(100%);
+        opacity:0;
+    }
+    to{
+        transform:translateX(0);
+        opacity:1;
+    }
+}
+
+.notification.success{
+    border-left:4px solid #27ae60;
+    background:#d4edda;
+    color:#155724;
+}
+
+@media (max-width: 600px){
+    .welcomeCard{
+        flex-direction:column;
+        text-align:center;
+    }
+    
+    .exchangeRateCard{
+        width:100%;
+    }
+    
+    .balance{
+        font-size:32px;
+    }
+    
+    .actionGrid{
+        grid-template-columns:repeat(2, 1fr);
+        gap:10px;
+    }
+}
+</style>
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+</head>
+
+<body>
+
+<!-- Header -->
+<div class="header">
+    <div class="header-left">
+        <span>🚢</span>
+        <span>Ship Remit</span>
+    </div>
+    <div class="header-right">
+        <span onclick="window.location.href='profile.html'">👤</span>
+        <span onclick="showNotification('Exchange rate updated by admin', 'info')">💱</span>
+        <span onclick="logout()">🚪</span>
+    </div>
+</div>
+
+<!-- Welcome Card -->
+<div class="welcomeCard">
+    <div class="welcomeText">
+        <div class="greeting">Welcome back,</div>
+        <div class="userName" id="userName">Loading...</div>
+    </div>
+    <div class="exchangeRateCard">
+        <div class="label">💱 Exchange Rate</div>
+        <div class="rate" id="exchangeRate">1 USD = 56.50 PHP</div>
+        <div class="lastUpdate" id="lastUpdate">Last updated: --</div>
+    </div>
+</div>
+
+<!-- Balance Card -->
+<div class="balanceCard">
+    <div class="balanceLabel">Available Balance</div>
+    <div class="balance">
+        <span class="currencySymbol" id="currencySymbol">$</span>
+        <span id="balanceAmount">0.00</span>
+    </div>
+    <div class="balanceConverted" id="convertedBalance">≈ ₱ 0.00 PHP</div>
+    <div class="accountNumber" id="accountNumber">**** **** **** 1234</div>
+</div>
+
+<!-- Stats Cards -->
+<div class="statsContainer">
+    <div class="statCard" onclick="window.location.href='history.html'">
+        <div class="statValue" id="totalSent">$0</div>
+        <div class="statLabel">Total Sent</div>
+    </div>
+    <div class="statCard" onclick="window.location.href='history.html'">
+        <div class="statValue" id="transactionCount">0</div>
+        <div class="statLabel">Transactions</div>
+    </div>
+    <div class="statCard" onclick="window.location.href='history.html'">
+        <div class="statValue" id="recentActivity">0</div>
+        <div class="statLabel">Last 30 Days</div>
+    </div>
+</div>
+
+<!-- Action Buttons Grid - 4 Cards -->
+<div class="actionGrid">
+    <div class="actionCard send" onclick="window.location.href='send.html'">
+        <div class="actionIcon">💰</div>
+        <div class="actionTitle">Send Money</div>
+        <div class="actionDesc">Transfer to anyone</div>
+    </div>
+    <div class="actionCard transactions" onclick="window.location.href='history.html'">
+        <div class="actionIcon">📜</div>
+        <div class="actionTitle">Transactions</div>
+        <div class="actionDesc">View all history</div>
+    </div>
+    <div class="actionCard upload" onclick="window.location.href='upload.html'">
+        <div class="actionIcon">📷</div>
+        <div class="actionTitle">Upload Receipt</div>
+        <div class="actionDesc">Upload payment proof</div>
+    </div>
+    <div class="actionCard history" onclick="window.location.href='history.html'">
+        <div class="actionIcon">📋</div>
+        <div class="actionTitle">History</div>
+        <div class="actionDesc">Transaction records</div>
+    </div>
+</div>
+
+<!-- Bottom Navigation -->
+<div class="bottomNav" id="bottomNav">
+    <a href="home.html">
+        <div>🏠</div>
+        <span>Home</span>
+    </a>
+    <a href="send.html">
+        <div>💳</div>
+        <span>Send</span>
+    </a>
+    <a href="history.html">
+        <div>📜</div>
+        <span>History</span>
+    </a>
+    <a href="profile.html">
+        <div>👤</div>
+        <span>Profile</span>
+    </a>
+</div>
+
+<script>
+// Firebase Configuration
+const firebaseConfig = {
+    apiKey: "AIzaSyDjspj1rS3F3zt_VhCvY6ypDsU9IfAAvP0",
+    authDomain: "shipremit.firebaseapp.com",
+    databaseURL: "https://shipremit-default-rtdb.firebaseio.com",
+    projectId: "shipremit",
+    storageBucket: "shipremit.firebasestorage.app",
+    messagingSenderId: "516183209213",
+    appId: "1:516183209213:web:d2ffdaa25b14b96de17a94",
+    measurementId: "G-0SE4CEQP5X"
+};
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+let currentUserId = null;
+
+// Check authentication
+auth.onAuthStateChanged(async (user) => {
+    if(user) {
+        currentUserId = user.uid;
+        console.log('User logged in:', user.email);
+        
+        // Load all data
+        await loadUserData();
+        await loadExchangeRate();
+        await loadStatistics();
+        
+        // Show welcome message
+        const userName = localStorage.getItem('userName') || 'User';
+        setTimeout(() => {
+            showNotification(`Welcome back, ${userName}! 👋`, 'success');
+        }, 500);
+        
+    } else {
+        window.location.href = 'login.html';
+    }
+});
+
+// Load user data
+async function loadUserData() {
+    try {
+        const userDoc = await db.collection('users').doc(currentUserId).get();
+        if(userDoc.exists) {
+            const data = userDoc.data();
+            document.getElementById('userName').textContent = data.name || data.email.split('@')[0];
+            document.getElementById('balanceAmount').textContent = data.balance.toFixed(2);
+            
+            const currencySymbol = getCurrencySymbol(data.currency || 'USD');
+            document.getElementById('currencySymbol').textContent = currencySymbol;
+            
+            const accountNumber = generateAccountNumber(data.email);
+            document.getElementById('accountNumber').textContent = accountNumber;
+            
+            updateConvertedBalance(data.balance);
+            
+            // Cache data
+            localStorage.setItem('userName', data.name);
+            localStorage.setItem('userBalance', data.balance);
+            localStorage.setItem('userCurrency', data.currency || 'USD');
+            localStorage.setItem('userEmail', data.email);
+        } else {
+            // Create user if not exists
+            await createUserDocument();
+        }
+    } catch (error) {
+        console.error('Error loading user data:', error);
+        // Use localStorage fallback
+        document.getElementById('userName').textContent = localStorage.getItem('userName') || 'User';
+        const balance = localStorage.getItem('userBalance') || '1000';
+        document.getElementById('balanceAmount').textContent = balance;
+        updateConvertedBalance(parseFloat(balance));
+    }
+}
+
+// Create user document if not exists
+async function createUserDocument() {
+    const user = auth.currentUser;
+    if(user) {
+        const userData = {
+            uid: user.uid,
+            name: user.email.split('@')[0],
+            email: user.email,
+            phone: '',
+            balance: 1000,
+            currency: 'USD',
+            createdAt: new Date(),
+            status: 'active'
+        };
+        
+        await db.collection('users').doc(user.uid).set(userData);
+        
+        // Create welcome transaction
+        await db.collection('transactions').add({
+            id: Date.now(),
+            userId: user.uid,
+            userEmail: user.email,
+            receiver: 'Welcome Bonus',
+            amount: 100,
+            method: 'System',
+            note: 'Welcome to Ship Remit! $100 bonus.',
+            date: new Date().toLocaleString(),
+            timestamp: new Date(),
+            status: 'completed'
+        });
+        
+        document.getElementById('userName').textContent = userData.name;
+        document.getElementById('balanceAmount').textContent = '1000.00';
+        updateConvertedBalance(1000);
+        
+        await loadStatistics();
+    }
+}
+
+// Load exchange rate
+async function loadExchangeRate() {
+    try {
+        const rateDoc = await db.collection('settings').doc('exchangeRate').get();
+        if(rateDoc.exists) {
+            const data = rateDoc.data();
+            document.getElementById('exchangeRate').innerHTML = `1 USD = ${data.rate.toFixed(2)} PHP`;
+            document.getElementById('lastUpdate').innerHTML = `Last updated: ${data.lastUpdate || 'Just now'}`;
+            localStorage.setItem('exchangeRate', data.rate);
+        } else {
+            // Create default rate
+            await db.collection('settings').doc('exchangeRate').set({
+                rate: 56.50,
+                lastUpdate: new Date().toLocaleString()
+            });
+            document.getElementById('exchangeRate').innerHTML = '1 USD = 56.50 PHP';
+            document.getElementById('lastUpdate').innerHTML = `Last updated: ${new Date().toLocaleString()}`;
+        }
+    } catch (error) {
+        console.error('Error loading exchange rate:', error);
+        const rate = localStorage.getItem('exchangeRate') || '56.50';
+        document.getElementById('exchangeRate').innerHTML = `1 USD = ${rate} PHP`;
+    }
+}
+
+// Load statistics only (no transaction list display)
+async function loadStatistics() {
+    try {
+        const transactionsSnapshot = await db.collection('transactions')
+            .where('userId', '==', currentUserId)
+            .get();
+        
+        let totalSent = 0;
+        let transactionCount = 0;
+        let thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        let recentCount = 0;
+        
+        transactionsSnapshot.forEach(doc => {
+            const t = doc.data();
+            totalSent += t.amount;
+            transactionCount++;
+            
+            const transactionDate = new Date(t.date);
+            if(transactionDate >= thirtyDaysAgo) {
+                recentCount++;
+            }
+        });
+        
+        const currencySymbol = getCurrencySymbol(localStorage.getItem('userCurrency') || 'USD');
+        document.getElementById('totalSent').textContent = `${currencySymbol}${totalSent.toFixed(2)}`;
+        document.getElementById('transactionCount').textContent = transactionCount;
+        document.getElementById('recentActivity').textContent = recentCount;
+        
+    } catch (error) {
+        console.error('Error loading statistics:', error);
+        // Use localStorage fallback
+        const transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
+        const totalSent = transactions.reduce((sum, t) => sum + t.amount, 0);
+        const currencySymbol = getCurrencySymbol(localStorage.getItem('userCurrency') || 'USD');
+        document.getElementById('totalSent').textContent = `${currencySymbol}${totalSent.toFixed(2)}`;
+        document.getElementById('transactionCount').textContent = transactions.length;
+    }
+}
+
+function updateConvertedBalance(balance) {
+    const rate = parseFloat(localStorage.getItem('exchangeRate') || '56.50');
+    const convertedBalance = balance * rate;
+    document.getElementById('convertedBalance').innerHTML = `≈ ₱ ${convertedBalance.toFixed(2)} PHP`;
+}
+
+function getCurrencySymbol(currency) {
+    const symbols = { USD: '$', EUR: '€', GBP: '£', PHP: '₱', JPY: '¥' };
+    return symbols[currency] || '$';
+}
+
+function generateAccountNumber(email) {
+    let hash = 0;
+    for(let i = 0; i < email.length; i++) {
+        hash = ((hash << 5) - hash) + email.charCodeAt(i);
+        hash |= 0;
+    }
+    const number = Math.abs(hash) % 10000;
+    return `**** **** **** ${number.toString().padStart(4, '0')}`;
+}
+
+function showNotification(message, type) {
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.innerHTML = message;
+    document.body.appendChild(notification);
+    notification.style.display = 'block';
+    
+    setTimeout(() => {
+        notification.style.opacity = '0';
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
+}
+
+async function logout() {
+    if(confirm('Are you sure you want to logout?')) {
+        try {
+            await auth.signOut();
+            localStorage.clear();
+            window.location.href = 'login.html';
+        } catch (error) {
+            window.location.href = 'login.html';
+        }
+    }
+}
+
+// Bottom Navigation Scroll
+let lastScroll = 0;
+const bottomNav = document.getElementById("bottomNav");
+
+window.addEventListener("scroll", function(){
+    const currentScroll = window.pageYOffset;
+    if(currentScroll <= 0){
+        bottomNav.classList.remove("hide");
+        return;
+    }
+    if(currentScroll > lastScroll){
+        bottomNav.classList.add("hide");
+    }else{
+        bottomNav.classList.remove("hide");
+    }
+    lastScroll = currentScroll;
+});
+</script>
+</body>
+</html>
