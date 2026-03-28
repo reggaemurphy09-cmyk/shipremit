@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ship Remit - Admin Login</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family: Arial, sans-serif;
+}
+
+body{
+    background:linear-gradient(#0a2c63,#1e4f9a);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:20px;
+}
+
+.loginContainer{
+    width:100%;
+    max-width:400px;
+    background:white;
+    border-radius:20px;
+    padding:40px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.3);
+}
+
+.logo{
+    text-align:center;
+    font-size:48px;
+    margin-bottom:10px;
+}
+
+h2{
+    text-align:center;
+    color:#0a2c63;
+    margin-bottom:30px;
+}
+
+.inputGroup{
+    margin-bottom:20px;
+}
+
+.inputGroup input{
+    width:100%;
+    padding:15px;
+    border:2px solid #e0e0e0;
+    border-radius:12px;
+    font-size:16px;
+}
+
+.inputGroup input:focus{
+    border-color:#ff6a00;
+    outline:none;
+}
+
+.loginBtn{
+    width:100%;
+    padding:15px;
+    background:linear-gradient(#ff6a00,#ff9c2f);
+    color:white;
+    border:none;
+    border-radius:12px;
+    font-size:18px;
+    cursor:pointer;
+    margin-bottom:15px;
+    font-weight:bold;
+}
+
+.loginBtn:hover{
+    transform:translateY(-2px);
+    box-shadow:0 5px 15px rgba(0,0,0,0.2);
+}
+
+.backLink{
+    text-align:center;
+    margin-top:20px;
+}
+
+.backLink a{
+    color:#1e4f9a;
+    text-decoration:none;
+}
+
+.error{
+    color:#e74c3c;
+    text-align:center;
+    margin-top:10px;
+    display:none;
+    padding:10px;
+    background:#f8d7da;
+    border-radius:8px;
+}
+
+.loading{
+    text-align:center;
+    margin-top:10px;
+    display:none;
+}
+
+.spinner{
+    display:inline-block;
+    width:20px;
+    height:20px;
+    border:2px solid #f3f3f3;
+    border-top:2px solid #ff9c2f;
+    border-radius:50%;
+    animation:spin 1s linear infinite;
+}
+
+@keyframes spin{
+    0%{transform:rotate(0deg);}
+    100%{transform:rotate(360deg);}
+}
+
+.success{
+    color:#27ae60;
+    text-align:center;
+    margin-top:10px;
+    display:none;
+    padding:10px;
+    background:#d4edda;
+    border-radius:8px;
+}
+</style>
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+</head>
+
+<body>
+<div class="loginContainer">
+    <div class="logo">👑</div>
+    <h2>Admin Login</h2>
+    
+    <div class="inputGroup">
+        <input type="email" id="adminUser" placeholder="Admin Email">
+    </div>
+    
+    <div class="inputGroup">
+        <input type="password" id="adminPass" placeholder="Password">
+    </div>
+    
+    <button class="loginBtn" onclick="adminLogin()">Admin Login</button>
+    
+    <div class="backLink">
+        <a href="login.html">← User Login</a>
+    </div>
+    
+    <div class="error" id="errorMsg"></div>
+    <div class="success" id="successMsg"></div>
+    <div class="loading" id="loading">
+        <div class="spinner"></div> Verifying...
+    </div>
+</div>
+
+<script>
+// Firebase config
+const firebaseConfig = {
+    apiKey: "AIzaSyDjspj1rS3F3zt_VhCvY6ypDsU9IfAAvP0",
+    authDomain: "shipremit.firebaseapp.com",
+    databaseURL: "https://shipremit-default-rtdb.firebaseio.com",
+    projectId: "shipremit",
+    storageBucket: "shipremit.firebasestorage.app",
+    messagingSenderId: "516183209213",
+    appId: "1:516183209213:web:d2ffdaa25b14b96de17a94",
+    measurementId: "G-0SE4CEQP5X"
+};
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+async function adminLogin() {
+    let email = document.getElementById('adminUser').value.trim();
+    let password = document.getElementById('adminPass').value;
+    
+    document.getElementById('errorMsg').style.display = 'none';
+    document.getElementById('successMsg').style.display = 'none';
+    
+    if(!email || !password) {
+        document.getElementById('errorMsg').innerHTML = 'Please enter both email and password';
+        document.getElementById('errorMsg').style.display = 'block';
+        return;
+    }
+    
+    document.getElementById('loading').style.display = 'block';
+    document.querySelector('.loginBtn').disabled = true;
+    
+    try {
+        // Try to sign in
+        const userCredential = await auth.signInWithEmailAndPassword(email, password);
+        const user = userCredential.user;
+        
+        // Check if user is admin in Firestore
+        let adminDoc = await db.collection('admins').doc(user.uid).get();
+        
+        // If not found, create admin record
+        if(!adminDoc.exists) {
+            console.log('Creating admin record for:', email);
+            await db.collection('admins').doc(user.uid).set({
+                email: user.email,
+                role: 'admin',
+                createdAt: new Date(),
+                uid: user.uid
+            });
+            
+            // Also update users collection
+            await db.collection('users').doc(user.uid).set({
+                name: email.split('@')[0],
+                email: user.email,
+                balance: 0,
+                currency: 'USD',
+                role: 'admin',
+                createdAt: new Date()
+            }, { merge: true });
+            
+            // Check again
+            adminDoc = await db.collection('admins').doc(user.uid).get();
+        }
+        
+        if(adminDoc.exists) {
+            localStorage.setItem('isAdminLoggedIn', 'true');
+            localStorage.setItem('adminId', user.uid);
+            localStorage.setItem('adminEmail', user.email);
+            
+            document.getElementById('successMsg').innerHTML = '✅ Admin access granted! Redirecting...';
+            document.getElementById('successMsg').style.display = 'block';
+            
+            setTimeout(() => {
+                window.location.href = 'admin-dashboard.html';
+            }, 1500);
+        } else {
+            await auth.signOut();
+            document.getElementById('errorMsg').innerHTML = 'Access denied. Admin privileges required.';
+            document.getElementById('errorMsg').style.display = 'block';
+        }
+        
+    } catch (error) {
+        console.error('Login error:', error);
+        
+        if(error.code === 'auth/user-not-found') {
+            document.getElementById('errorMsg').innerHTML = 'Account not found. Please sign up first.';
+        } else if(error.code === 'auth/wrong-password') {
+            document.getElementById('errorMsg').innerHTML = 'Wrong password. Try: admin123';
+        } else {
+            document.getElementById('errorMsg').innerHTML = 'Invalid admin credentials';
+        }
+        document.getElementById('errorMsg').style.display = 'block';
+    } finally {
+        document.getElementById('loading').style.display = 'none';
+        document.querySelector('.loginBtn').disabled = false;
+    }
+}
+
+// Enter key support
+document.querySelectorAll('input').forEach(input => {
+    input.addEventListener('keypress', function(e) {
+        if(e.key === 'Enter') adminLogin();
+    });
+});
+
+// Pre-fill for easier testing
+window.onload = function() {
+    document.getElementById('adminUser').value = '';
+    document.getElementById('adminPass').value = '';
+}
+</script>
+</body>
+</html>
