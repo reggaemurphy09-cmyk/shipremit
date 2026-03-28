@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ship Remit - My Profile</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family: Arial, sans-serif;
+}
+
+body{
+    background:#e9eef5;
+    padding-top:70px;
+    padding-bottom:70px;
+}
+
+/* Header */
+.header{
+    position:fixed;
+    top:0;
+    width:100%;
+    background:linear-gradient(#0a2c63,#1e4f9a);
+    color:white;
+    padding:18px;
+    text-align:center;
+    font-size:22px;
+    font-weight:bold;
+    z-index:1000;
+}
+
+/* Profile Card */
+.profileCard{
+    margin:15px;
+    background:white;
+    border-radius:15px;
+    padding:20px;
+    text-align:center;
+    box-shadow:0 4px 10px rgba(0,0,0,0.1);
+    position:relative;
+}
+
+.avatar{
+    position:relative;
+    width:100px;
+    height:100px;
+    background:linear-gradient(135deg, #1e4f9a, #0a2c63);
+    color:white;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:40px;
+    margin:0 auto 15px;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+.avatar:hover{
+    transform:scale(1.05);
+    box-shadow:0 5px 15px rgba(0,0,0,0.2);
+}
+
+.changePhoto{
+    position:absolute;
+    bottom:5px;
+    right:5px;
+    background:#ff9c2f;
+    border-radius:50%;
+    width:30px;
+    height:30px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:16px;
+    cursor:pointer;
+}
+
+.name{
+    font-size:22px;
+    font-weight:bold;
+    color:#0a2c63;
+    margin-top:10px;
+}
+
+.email{
+    font-size:14px;
+    color:gray;
+    margin-top:5px;
+}
+
+.memberSince{
+    font-size:12px;
+    color:#999;
+    margin-top:5px;
+}
+
+.editIcon{
+    position:absolute;
+    top:20px;
+    right:20px;
+    background:#f0f0f0;
+    padding:8px 12px;
+    border-radius:20px;
+    font-size:12px;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+.editIcon:hover{
+    background:#1e4f9a;
+    color:white;
+}
+
+/* Edit Form */
+.editForm{
+    margin:15px;
+    background:white;
+    border-radius:15px;
+    padding:20px;
+    box-shadow:0 4px 10px rgba(0,0,0,0.1);
+    display:none;
+}
+
+.editForm h3{
+    color:#0a2c63;
+    margin-bottom:15px;
+    padding-bottom:10px;
+    border-bottom:2px solid #ff9c2f;
+}
+
+.inputGroup{
+    margin-bottom:15px;
+}
+
+.inputGroup label{
+    display:block;
+    margin-bottom:5px;
+    font-weight:bold;
+    color:#333;
+}
+
+.inputGroup input,
+.inputGroup select{
+    width:100%;
+    padding:12px;
+    border:2px solid #e0e0e0;
+    border-radius:10px;
+    font-size:14px;
+    transition:0.3s;
+}
+
+.inputGroup input:focus,
+.inputGroup select:focus{
+    border-color:#1e4f9a;
+    outline:none;
+}
+
+.inputGroup input.error{
+    border-color:#e74c3c;
+}
+
+.btnGroup{
+    display:flex;
+    gap:10px;
+    margin-top:20px;
+}
+
+.btn{
+    flex:1;
+    padding:12px;
+    border:none;
+    border-radius:10px;
+    font-size:16px;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+.btn-save{
+    background:linear-gradient(#1e4f9a,#0a2c63);
+    color:white;
+}
+
+.btn-cancel{
+    background:#e0e0e0;
+    color:#333;
+}
+
+.btn-save:hover{
+    transform:translateY(-2px);
+    box-shadow:0 5px 15px rgba(30,79,154,0.3);
+}
+
+.btn-cancel:hover{
+    background:#c0c0c0;
+}
+
+/* Menu Section */
+.menu{
+    margin:15px;
+    background:white;
+    border-radius:15px;
+    box-shadow:0 4px 10px rgba(0,0,0,0.1);
+    overflow:hidden;
+}
+
+.menuItem{
+    padding:15px 20px;
+    border-bottom:1px solid #eee;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+.menuItem:hover{
+    background:#f8f9fa;
+    padding-left:25px;
+}
+
+.menuItem:last-child{
+    border-bottom:none;
+}
+
+.menuItemLeft{
+    display:flex;
+    align-items:center;
+    gap:15px;
+}
+
+.menuIcon{
+    font-size:20px;
+    width:30px;
+}
+
+.menuText{
+    font-size:16px;
+}
+
+.menuValue{
+    color:#ff9c2f;
+    font-weight:bold;
+}
+
+.logout{
+    color:#e74c3c;
+}
+
+.logout .menuText{
+    color:#e74c3c;
+    font-weight:bold;
+}
+
+/* Notification */
+.notification{
+    position:fixed;
+    top:80px;
+    right:20px;
+    padding:15px 20px;
+    background:white;
+    border-radius:10px;
+    box-shadow:0 5px 15px rgba(0,0,0,0.2);
+    display:none;
+    z-index:2000;
+    animation:slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn{
+    from{
+        transform:translateX(100%);
+        opacity:0;
+    }
+    to{
+        transform:translateX(0);
+        opacity:1;
+    }
+}
+
+.notification.success{
+    border-left:4px solid #27ae60;
+}
+
+.notification.error{
+    border-left:4px solid #e74c3c;
+}
+
+.notification.info{
+    border-left:4px solid #3498db;
+}
+
+/* Bottom Nav */
+.bottomNav{
+    position:fixed;
+    bottom:0;
+    width:100%;
+    background:linear-gradient(#1e4f9a,#0a2c63);
+    display:flex;
+    justify-content:space-around;
+    padding:10px 0;
+    transition:0.3s;
+}
+
+.bottomNav.hide{
+    bottom:-70px;
+}
+
+.bottomNav a{
+    color:white;
+    text-decoration:none;
+    text-align:center;
+    font-size:14px;
+    transition:0.3s;
+}
+
+.bottomNav a:hover{
+    transform:translateY(-3px);
+}
+
+.bottomNav div{
+    font-size:20px;
+}
+
+/* Modal for Photo Upload */
+.modal{
+    display:none;
+    position:fixed;
+    z-index:3000;
+    left:0;
+    top:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.5);
+    animation:fadeIn 0.3s;
+}
+
+@keyframes fadeIn{
+    from{opacity:0;}
+    to{opacity:1;}
+}
+
+.modalContent{
+    background:white;
+    margin:50% auto;
+    padding:20px;
+    width:90%;
+    max-width:350px;
+    border-radius:15px;
+    text-align:center;
+}
+
+.modalContent h3{
+    margin-bottom:15px;
+    color:#0a2c63;
+}
+
+.modalContent input{
+    width:100%;
+    padding:10px;
+    margin:10px 0;
+    border:2px solid #e0e0e0;
+    border-radius:10px;
+}
+
+.modalContent button{
+    padding:10px 20px;
+    margin:5px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+/* Responsive */
+@media (max-width: 600px){
+    .menuItem{
+        padding:12px 15px;
+    }
+    
+    .notification{
+        left:20px;
+        right:20px;
+        text-align:center;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- Header -->
+<div class="header">
+👤 My Profile
+</div>
+
+<!-- Profile Card -->
+<div class="profileCard">
+    <div class="editIcon" onclick="toggleEditForm()">
+        ✏️ Edit Profile
+    </div>
+    <div class="avatar" onclick="openPhotoModal()">
+        <span id="avatarEmoji">👤</span>
+        <div class="changePhoto">📷</div>
+    </div>
+    <div class="name" id="userName">Ship Remit User</div>
+    <div class="email" id="userEmail">user@email.com</div>
+    <div class="memberSince" id="memberSince">Member since: Loading...</div>
+</div>
+
+<!-- Edit Form -->
+<div class="editForm" id="editForm">
+    <h3>✏️ Edit Profile Information</h3>
+    
+    <div class="inputGroup">
+        <label>Full Name *</label>
+        <input type="text" id="editName" placeholder="Enter your full name">
+    </div>
+    
+    <div class="inputGroup">
+        <label>Email Address *</label>
+        <input type="email" id="editEmail" placeholder="Enter your email">
+    </div>
+    
+    <div class="inputGroup">
+        <label>Phone Number</label>
+        <input type="tel" id="editPhone" placeholder="Enter your phone number">
+    </div>
+    
+    <div class="inputGroup">
+        <label>Currency Preference</label>
+        <select id="editCurrency">
+            <option value="USD">USD - US Dollar ($)</option>
+            <option value="EUR">EUR - Euro (€)</option>
+            <option value="GBP">GBP - British Pound (£)</option>
+            <option value="PHP">PHP - Philippine Peso (₱)</option>
+            <option value="JPY">JPY - Japanese Yen (¥)</option>
+        </select>
+    </div>
+    
+    <div class="btnGroup">
+        <button class="btn btn-save" onclick="saveProfile()">💾 Save Changes</button>
+        <button class="btn btn-cancel" onclick="toggleEditForm()">Cancel</button>
+    </div>
+</div>
+
+<!-- Menu -->
+<div class="menu">
+    <div class="menuItem" onclick="viewBalance()">
+        <div class="menuItemLeft">
+            <div class="menuIcon">💰</div>
+            <div class="menuText">My Balance</div>
+        </div>
+        <div class="menuValue" id="balanceValue">$0.00</div>
+    </div>
+    
+    <div class="menuItem" onclick="window.location.href='upload.html'">
+        <div class="menuItemLeft">
+            <div class="menuIcon">📷</div>
+            <div class="menuText">Upload Receipt</div>
+        </div>
+        <div class="menuValue">></div>
+    </div>
+    
+    <div class="menuItem" onclick="window.location.href='history.html'">
+        <div class="menuItemLeft">
+            <div class="menuIcon">📜</div>
+            <div class="menuText">Transaction History</div>
+        </div>
+        <div class="menuValue">></div>
+    </div>
+    
+    <div class="menuItem" onclick="changePassword()">
+        <div class="menuItemLeft">
+            <div class="menuIcon">🔒</div>
+            <div class="menuText">Change Password</div>
+        </div>
+        <div class="menuValue">></div>
+    </div>
+    
+    <div class="menuItem" onclick="showSettings()">
+        <div class="menuItemLeft">
+            <div class="menuIcon">⚙️</div>
+            <div class="menuText">Settings</div>
+        </div>
+        <div class="menuValue">></div>
+    </div>
+    
+    <div class="menuItem logout" onclick="logout()">
+        <div class="menuItemLeft">
+            <div class="menuIcon">🚪</div>
+            <div class="menuText">Logout</div>
+        </div>
+        <div class="menuValue">></div>
+    </div>
+</div>
+
+<!-- Photo Upload Modal -->
+<div id="photoModal" class="modal">
+    <div class="modalContent">
+        <h3>📷 Update Profile Photo</h3>
+        <p>Choose an emoji for your profile picture:</p>
+        <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin:15px 0;">
+            <button onclick="changeAvatar('👤')" style="font-size:30px; padding:10px;">👤</button>
+            <button onclick="changeAvatar('😊')" style="font-size:30px; padding:10px;">😊</button>
+            <button onclick="changeAvatar('🚢')" style="font-size:30px; padding:10px;">🚢</button>
+            <button onclick="changeAvatar('💰')" style="font-size:30px; padding:10px;">💰</button>
+            <button onclick="changeAvatar('⭐')" style="font-size:30px; padding:10px;">⭐</button>
+            <button onclick="changeAvatar('🌟')" style="font-size:30px; padding:10px;">🌟</button>
+            <button onclick="changeAvatar('💎')" style="font-size:30px; padding:10px;">💎</button>
+            <button onclick="changeAvatar('🎯')" style="font-size:30px; padding:10px;">🎯</button>
+        </div>
+        <button class="btn btn-cancel" onclick="closePhotoModal()" style="width:100%;">Close</button>
+    </div>
+</div>
+
+<!-- Change Password Modal -->
+<div id="passwordModal" class="modal">
+    <div class="modalContent">
+        <h3>🔒 Change Password</h3>
+        <input type="password" id="currentPassword" placeholder="Current Password">
+        <input type="password" id="newPassword" placeholder="New Password">
+        <input type="password" id="confirmNewPassword" placeholder="Confirm New Password">
+        <button class="btn btn-save" onclick="updatePassword()">Update Password</button>
+        <button class="btn btn-cancel" onclick="closePasswordModal()">Cancel</button>
+    </div>
+</div>
+
+<!-- Bottom Nav -->
+<div class="bottomNav" id="bottomNav">
+    <a href="home.html">
+        <div>🏠</div>
+        Home
+    </a>
+    <a href="send.html">
+        <div>💳</div>
+        Send
+    </a>
+    <a href="history.html">
+        <div>📜</div>
+        History
+    </a>
+    <a href="profile.html">
+        <div>👤</div>
+        Profile
+    </a>
+</div>
+
+<script>
+// Load profile data
+function loadProfile() {
+    // Get user data from localStorage
+    let userName = localStorage.getItem('userName') || 'Ship Remit User';
+    let userEmail = localStorage.getItem('userEmail') || 'user@email.com';
+    let userPhone = localStorage.getItem('userPhone') || '';
+    let userCurrency = localStorage.getItem('userCurrency') || 'USD';
+    let userAvatar = localStorage.getItem('userAvatar') || '👤';
+    let memberSince = localStorage.getItem('memberSince');
+    
+    // Set member since date if not exists
+    if(!memberSince) {
+        memberSince = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        localStorage.setItem('memberSince', memberSince);
+    }
+    
+    // Display profile info
+    document.getElementById('userName').textContent = userName;
+    document.getElementById('userEmail').textContent = userEmail;
+    document.getElementById('memberSince').textContent = `Member since: ${memberSince}`;
+    document.getElementById('avatarEmoji').textContent = userAvatar;
+    
+    // Fill edit form
+    document.getElementById('editName').value = userName;
+    document.getElementById('editEmail').value = userEmail;
+    document.getElementById('editPhone').value = userPhone;
+    document.getElementById('editCurrency').value = userCurrency;
+    
+    // Load balance
+    let balance = localStorage.getItem('userBalance') || '0';
+    let currencySymbol = getCurrencySymbol(userCurrency);
+    document.getElementById('balanceValue').textContent = `${currencySymbol}${parseFloat(balance).toFixed(2)}`;
+}
+
+// Get currency symbol
+function getCurrencySymbol(currency) {
+    const symbols = {
+        USD: '$',
+        EUR: '€',
+        GBP: '£',
+        PHP: '₱',
+        JPY: '¥'
+    };
+    return symbols[currency] || '$';
+}
+
+// Toggle edit form
+function toggleEditForm() {
+    let form = document.getElementById('editForm');
+    if(form.style.display === 'none' || form.style.display === '') {
+        form.style.display = 'block';
+        form.scrollIntoView({ behavior: 'smooth' });
+    } else {
+        form.style.display = 'none';
+    }
+}
+
+// Save profile changes
+function saveProfile() {
+    let newName = document.getElementById('editName').value.trim();
+    let newEmail = document.getElementById('editEmail').value.trim();
+    let newPhone = document.getElementById('editPhone').value.trim();
+    let newCurrency = document.getElementById('editCurrency').value;
+    
+    // Validation
+    if(!newName) {
+        showNotification('Please enter your name', 'error');
+        return;
+    }
+    
+    if(!newEmail || !newEmail.includes('@')) {
+        showNotification('Please enter a valid email address', 'error');
+        return;
+    }
+    
+    // Check if email is changed and already exists
+    let currentEmail = localStorage.getItem('userEmail');
+    if(newEmail !== currentEmail) {
+        let users = JSON.parse(localStorage.getItem('allUsers') || '[]');
+        let emailExists = users.some(user => user.email === newEmail);
+        if(emailExists) {
+            showNotification('Email already registered to another account', 'error');
+            return;
+        }
+        
+        // Update email in all users list
+        let userIndex = users.findIndex(u => u.email === currentEmail);
+        if(userIndex !== -1) {
+            users[userIndex].email = newEmail;
+            users[userIndex].name = newName;
+            users[userIndex].phone = newPhone;
+            localStorage.setItem('allUsers', JSON.stringify(users));
+        }
+        
+        // Update email in transactions
+        let allTransactions = JSON.parse(localStorage.getItem('allTransactions') || '[]');
+        allTransactions.forEach(t => {
+            if(t.userEmail === currentEmail) {
+                t.userEmail = newEmail;
+            }
+        });
+        localStorage.setItem('allTransactions', JSON.stringify(allTransactions));
+    }
+    
+    // Save to localStorage
+    localStorage.setItem('userName', newName);
+    localStorage.setItem('userEmail', newEmail);
+    localStorage.setItem('userPhone', newPhone);
+    localStorage.setItem('userCurrency', newCurrency);
+    
+    // Reload profile display
+    loadProfile();
+    
+    // Hide form
+    toggleEditForm();
+    
+    // Show success message
+    showNotification('Profile updated successfully!', 'success');
+}
+
+// Change avatar
+function openPhotoModal() {
+    document.getElementById('photoModal').style.display = 'block';
+}
+
+function closePhotoModal() {
+    document.getElementById('photoModal').style.display = 'none';
+}
+
+function changeAvatar(emoji) {
+    localStorage.setItem('userAvatar', emoji);
+    document.getElementById('avatarEmoji').textContent = emoji;
+    closePhotoModal();
+    showNotification('Profile photo updated!', 'success');
+}
+
+// Change password
+function changePassword() {
+    document.getElementById('passwordModal').style.display = 'block';
+}
+
+function closePasswordModal() {
+    document.getElementById('passwordModal').style.display = 'none';
+}
+
+function updatePassword() {
+    let currentPassword = document.getElementById('currentPassword').value;
+    let newPassword = document.getElementById('newPassword').value;
+    let confirmPassword = document.getElementById('confirmNewPassword').value;
+    
+    // Get current user
+    let userEmail = localStorage.getItem('userEmail');
+    let users = JSON.parse(localStorage.getItem('allUsers') || '[]');
+    let user = users.find(u => u.email === userEmail);
+    
+    if(!user) {
+        showNotification('User not found', 'error');
+        return;
+    }
+    
+    // Check current password
+    if(user.password !== currentPassword) {
+        showNotification('Current password is incorrect', 'error');
+        return;
+    }
+    
+    // Validate new password
+    if(newPassword.length < 6) {
+        showNotification('New password must be at least 6 characters', 'error');
+        return;
+    }
+    
+    if(newPassword !== confirmPassword) {
+        showNotification('New passwords do not match', 'error');
+        return;
+    }
+    
+    // Update password
+    user.password = newPassword;
+    localStorage.setItem('allUsers', JSON.stringify(users));
+    
+    // Clear form
+    document.getElementById('currentPassword').value = '';
+    document.getElementById('newPassword').value = '';
+    document.getElementById('confirmNewPassword').value = '';
+    
+    closePasswordModal();
+    showNotification('Password changed successfully!', 'success');
+}
+
+// View balance
+function viewBalance() {
+    let balance = localStorage.getItem('userBalance') || '0';
+    let currency = localStorage.getItem('userCurrency') || 'USD';
+    let symbol = getCurrencySymbol(currency);
+    showNotification(`Your current balance: ${symbol}${parseFloat(balance).toFixed(2)}`, 'info');
+}
+
+// Settings
+function showSettings() {
+    let currency = localStorage.getItem('userCurrency') || 'USD';
+    let phone = localStorage.getItem('userPhone') || 'Not set';
+    showNotification(`Settings\nCurrency: ${currency}\nPhone: ${phone}`, 'info');
+}
+
+// Logout
+function logout() {
+    if(confirm('Are you sure you want to logout?')) {
+        localStorage.removeItem('isLoggedIn');
+        window.location.href = 'login.html';
+    }
+}
+
+// Show notification
+function showNotification(message, type) {
+    let notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.innerHTML = message;
+    document.body.appendChild(notification);
+    notification.style.display = 'block';
+    
+    setTimeout(() => {
+        notification.style.opacity = '0';
+        setTimeout(() => {
+            notification.remove();
+        }, 300);
+    }, 3000);
+}
+
+// Bottom Nav Scroll
+let lastScroll = 0;
+let bottomNav = document.getElementById("bottomNav");
+
+window.addEventListener("scroll", function(){
+    let currentScroll = window.pageYOffset;
+    if(currentScroll <= 0){
+        bottomNav.classList.remove("hide");
+        return;
+    }
+    if(currentScroll > lastScroll){
+        bottomNav.classList.add("hide");
+    }else{
+        bottomNav.classList.remove("hide");
+    }
+    lastScroll = currentScroll;
+});
+
+// Check login
+if(!localStorage.getItem('isLoggedIn')) {
+    window.location.href = 'login.html';
+}
+
+// Initialize
+loadProfile();
+</script>
+</body>
+</html>
