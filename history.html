@@ -1,0 +1,1396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ship Remit - Transaction History</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family: Arial, sans-serif;
+}
+
+body{
+    background:#e9eef5;
+    padding-top:70px;
+    padding-bottom:70px;
+}
+
+.header{
+    position:fixed;
+    top:0;
+    width:100%;
+    background:linear-gradient(#0a2c63,#1e4f9a);
+    color:white;
+    padding:18px;
+    font-size:22px;
+    font-weight:bold;
+    z-index:1000;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding-left:20px;
+    padding-right:20px;
+}
+
+.header-left{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.filterIcon{
+    cursor:pointer;
+    font-size:20px;
+    background:rgba(255,255,255,0.2);
+    padding:8px 12px;
+    border-radius:20px;
+    transition:0.3s;
+}
+
+.filterIcon:hover{
+    background:rgba(255,255,255,0.3);
+}
+
+.card{
+    margin:15px;
+    background:white;
+    border-radius:15px;
+    padding:20px;
+    box-shadow:0 4px 10px rgba(0,0,0,0.1);
+}
+
+/* Status Summary Cards */
+.statusSummary{
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    gap:10px;
+    margin-bottom:20px;
+}
+
+.statusSummaryCard{
+    background:white;
+    border-radius:12px;
+    padding:12px;
+    text-align:center;
+    cursor:pointer;
+    transition:0.3s;
+    border:2px solid transparent;
+}
+
+.statusSummaryCard:hover{
+    transform:translateY(-3px);
+    box-shadow:0 4px 12px rgba(0,0,0,0.1);
+}
+
+.statusSummaryCard.active{
+    border-color:#ff6a00;
+    background:#fff9f0;
+}
+
+.statusSummaryCard .icon{
+    font-size:24px;
+    margin-bottom:5px;
+}
+
+.statusSummaryCard .count{
+    font-size:20px;
+    font-weight:bold;
+    color:#0a2c63;
+}
+
+.statusSummaryCard .label{
+    font-size:11px;
+    color:gray;
+}
+
+.summaryCardPending .count{ color:#856404; }
+.summaryCardProcessing .count{ color:#004085; }
+.summaryCardCompleted .count{ color:#155724; }
+.summaryCardFailed .count{ color:#721c24; }
+
+.filterBar{
+    display:flex;
+    gap:10px;
+    margin-bottom:20px;
+    flex-wrap:wrap;
+    transition:0.3s;
+}
+
+.filterBar input,
+.filterBar select{
+    flex:1;
+    padding:12px;
+    border:2px solid #e0e0e0;
+    border-radius:10px;
+    font-size:14px;
+    transition:0.3s;
+}
+
+.filterBar input:focus,
+.filterBar select:focus{
+    border-color:#1e4f9a;
+    outline:none;
+}
+
+.filterBar button{
+    padding:12px 20px;
+    background:#1e4f9a;
+    color:white;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+.filterBar button:hover{
+    background:#0a2c63;
+    transform:translateY(-2px);
+}
+
+.summary{
+    background:linear-gradient(135deg, #f8f9fa, #e9ecef);
+    padding:15px;
+    border-radius:12px;
+    margin-bottom:20px;
+    display:flex;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:15px;
+}
+
+.summaryItem{
+    text-align:center;
+    flex:1;
+}
+
+.summaryLabel{
+    font-size:11px;
+    color:gray;
+    margin-bottom:5px;
+}
+
+.summaryValue{
+    font-size:18px;
+    font-weight:bold;
+    color:#0a2c63;
+}
+
+.transactionList{
+    max-height:500px;
+    overflow-y:auto;
+}
+
+.transactionItem{
+    padding:15px;
+    border-bottom:1px solid #eee;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    transition:0.3s;
+    position:relative;
+}
+
+.transactionItem:hover{
+    background:#f8f9fa;
+}
+
+.transactionItem.pending{
+    border-left:4px solid #ffc107;
+    background:#fffef7;
+}
+
+.transactionItem.processing{
+    border-left:4px solid #17a2b8;
+    background:#f0f9ff;
+}
+
+.transactionItem.completed{
+    border-left:4px solid #28a745;
+}
+
+.transactionItem.failed{
+    border-left:4px solid #dc3545;
+    opacity:0.8;
+}
+
+.transactionInfo{
+    flex:1;
+}
+
+.transactionName{
+    font-weight:bold;
+    color:#0a2c63;
+    font-size:16px;
+}
+
+.transactionDate{
+    font-size:11px;
+    color:gray;
+    margin-top:5px;
+}
+
+.transactionMethod{
+    font-size:11px;
+    color:#ff9c2f;
+    margin-top:3px;
+}
+
+.transactionNote{
+    font-size:11px;
+    color:#666;
+    margin-top:3px;
+    font-style:italic;
+}
+
+.transactionAmount{
+    font-weight:bold;
+    font-size:18px;
+    text-align:right;
+    min-width:100px;
+}
+
+.amountNegative{
+    color:#e74c3c;
+}
+
+.statusBadge{
+    display:inline-block;
+    padding:4px 10px;
+    border-radius:20px;
+    font-size:11px;
+    font-weight:bold;
+    margin-top:6px;
+}
+
+.status-pending{
+    background:#fff3cd;
+    color:#856404;
+}
+
+.status-processing{
+    background:#cce5ff;
+    color:#004085;
+}
+
+.status-completed{
+    background:#d4edda;
+    color:#155724;
+}
+
+.status-failed{
+    background:#f8d7da;
+    color:#721c24;
+}
+
+.transactionActions{
+    display:flex;
+    gap:8px;
+    margin-left:15px;
+}
+
+.actionBtn{
+    padding:6px 12px;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+    font-size:11px;
+    transition:0.3s;
+    font-weight:bold;
+}
+
+.btn-edit{
+    background:#ff9c2f;
+    color:white;
+}
+
+.btn-edit:hover{
+    background:#ff6a00;
+    transform:scale(1.05);
+}
+
+.btn-cancel{
+    background:#e74c3c;
+    color:white;
+}
+
+.btn-cancel:hover{
+    background:#c0392b;
+    transform:scale(1.05);
+}
+
+.btn-view{
+    background:#1e4f9a;
+    color:white;
+}
+
+.btn-view:hover{
+    background:#0a2c63;
+}
+
+.emptyState{
+    text-align:center;
+    padding:60px 20px;
+    color:gray;
+}
+
+.emptyStateIcon{
+    font-size:64px;
+    margin-bottom:15px;
+}
+
+.pagination{
+    display:flex;
+    justify-content:center;
+    gap:8px;
+    margin-top:20px;
+    flex-wrap:wrap;
+}
+
+.pagination button{
+    padding:8px 12px;
+    border:1px solid #ddd;
+    background:white;
+    border-radius:6px;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+.pagination button:hover:not(:disabled){
+    background:#1e4f9a;
+    color:white;
+    border-color:#1e4f9a;
+}
+
+.pagination button.active{
+    background:#1e4f9a;
+    color:white;
+    border-color:#1e4f9a;
+}
+
+.pagination button:disabled{
+    opacity:0.5;
+    cursor:not-allowed;
+}
+
+/* Modal Styles */
+.modal{
+    display:none;
+    position:fixed;
+    z-index:2000;
+    left:0;
+    top:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.5);
+    animation:fadeIn 0.3s;
+}
+
+@keyframes fadeIn{
+    from{opacity:0;}
+    to{opacity:1;}
+}
+
+.modalContent{
+    background:white;
+    margin:5% auto;
+    padding:25px;
+    width:90%;
+    max-width:550px;
+    border-radius:15px;
+    animation:slideUp 0.3s;
+    max-height:85vh;
+    overflow-y:auto;
+}
+
+@keyframes slideUp{
+    from{
+        transform:translateY(50px);
+        opacity:0;
+    }
+    to{
+        transform:translateY(0);
+        opacity:1;
+    }
+}
+
+.modalContent h3{
+    color:#0a2c63;
+    margin-bottom:20px;
+    padding-bottom:10px;
+    border-bottom:2px solid #ff9c2f;
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.modalContent .infoRow{
+    margin-bottom:12px;
+    padding:10px;
+    background:#f8f9fa;
+    border-radius:8px;
+}
+
+.modalContent .infoLabel{
+    font-weight:bold;
+    color:#0a2c63;
+    font-size:12px;
+    margin-bottom:5px;
+}
+
+.modalContent .infoValue{
+    font-size:14px;
+    color:#333;
+    word-break:break-word;
+}
+
+.modalContent .divider{
+    height:1px;
+    background:#e0e0e0;
+    margin:15px 0;
+}
+
+.modalContent .amount-display{
+    font-size:20px;
+    font-weight:bold;
+    color:#27ae60;
+}
+
+.modalContent .section-title{
+    font-size:14px;
+    font-weight:bold;
+    color:#ff6a00;
+    margin:15px 0 10px 0;
+    padding-left:5px;
+    border-left:3px solid #ff6a00;
+}
+
+.modalContent input,
+.modalContent select,
+.modalContent textarea{
+    width:100%;
+    padding:12px;
+    margin-bottom:15px;
+    border:2px solid #e0e0e0;
+    border-radius:8px;
+    font-size:14px;
+}
+
+.modalContent textarea{
+    resize:vertical;
+    min-height:80px;
+}
+
+.modalButtons{
+    display:flex;
+    gap:10px;
+    margin-top:20px;
+}
+
+.btn-save{
+    background:#27ae60;
+    color:white;
+}
+
+.btn-save:hover{
+    background:#229954;
+}
+
+.btn-danger{
+    background:#e74c3c;
+    color:white;
+}
+
+.btn-danger:hover{
+    background:#c0392b;
+}
+
+.btn-secondary{
+    background:#95a5a6;
+    color:white;
+}
+
+.btn-secondary:hover{
+    background:#7f8c8d;
+}
+
+/* Bottom Nav */
+.bottomNav{
+    position:fixed;
+    bottom:0;
+    width:100%;
+    background:linear-gradient(#1e4f9a,#0a2c63);
+    display:flex;
+    justify-content:space-around;
+    padding:10px 0;
+    transition:0.3s;
+    z-index:999;
+}
+
+.bottomNav.hide{
+    bottom:-70px;
+}
+
+.bottomNav a{
+    color:white;
+    text-decoration:none;
+    text-align:center;
+    font-size:14px;
+    transition:0.3s;
+    flex:1;
+}
+
+.bottomNav a:hover{
+    transform:translateY(-3px);
+}
+
+.bottomNav div{
+    font-size:20px;
+}
+
+.notification{
+    position:fixed;
+    top:80px;
+    right:20px;
+    left:20px;
+    padding:12px 20px;
+    border-radius:10px;
+    box-shadow:0 5px 15px rgba(0,0,0,0.2);
+    display:none;
+    z-index:3000;
+    animation:slideIn 0.3s ease-out;
+    text-align:center;
+}
+
+@keyframes slideIn{
+    from{
+        transform:translateX(100%);
+        opacity:0;
+    }
+    to{
+        transform:translateX(0);
+        opacity:1;
+    }
+}
+
+.notification.success{
+    background:#d4edda;
+    color:#155724;
+    border-left:4px solid #27ae60;
+}
+
+.notification.error{
+    background:#f8d7da;
+    color:#721c24;
+    border-left:4px solid #e74c3c;
+}
+
+.notification.info{
+    background:#d1ecf1;
+    color:#0c5460;
+    border-left:4px solid #17a2b8;
+}
+
+@media (max-width: 768px){
+    .transactionItem{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:10px;
+    }
+    
+    .transactionActions{
+        margin-left:0;
+        width:100%;
+        justify-content:flex-end;
+    }
+    
+    .statusSummary{
+        grid-template-columns:repeat(2, 1fr);
+        gap:8px;
+    }
+    
+    .summary{
+        flex-direction:column;
+        gap:10px;
+    }
+    
+    .modalContent{
+        margin:10% auto;
+        width:95%;
+        max-height:90vh;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+    <div class="header-left">
+        <span>📜</span>
+        <span>Transaction History</span>
+    </div>
+    <div class="filterIcon" onclick="toggleFilters()">🔍</div>
+</div>
+
+<div class="card">
+    <!-- Status Summary Cards -->
+    <div class="statusSummary">
+        <div class="statusSummaryCard summaryCardPending" onclick="filterByStatus('pending')" id="pendingCard">
+            <div class="icon">⏳</div>
+            <div class="count" id="pendingCount">0</div>
+            <div class="label">Pending</div>
+        </div>
+        <div class="statusSummaryCard summaryCardProcessing" onclick="filterByStatus('processing')" id="processingCard">
+            <div class="icon">🔄</div>
+            <div class="count" id="processingCount">0</div>
+            <div class="label">Processing</div>
+        </div>
+        <div class="statusSummaryCard summaryCardCompleted" onclick="filterByStatus('completed')" id="completedCard">
+            <div class="icon">✅</div>
+            <div class="count" id="completedCount">0</div>
+            <div class="label">Completed</div>
+        </div>
+        <div class="statusSummaryCard summaryCardFailed" onclick="filterByStatus('failed')" id="failedCard">
+            <div class="icon">❌</div>
+            <div class="count" id="failedCount">0</div>
+            <div class="label">Failed</div>
+        </div>
+    </div>
+    
+    <!-- Summary Stats -->
+    <div class="summary">
+        <div class="summaryItem">
+            <div class="summaryLabel">Total Transactions</div>
+            <div class="summaryValue" id="totalCount">0</div>
+        </div>
+        <div class="summaryItem">
+            <div class="summaryLabel">Total Sent</div>
+            <div class="summaryValue" id="totalSent">$0</div>
+        </div>
+        <div class="summaryItem">
+            <div class="summaryLabel">Average Amount</div>
+            <div class="summaryValue" id="avgAmount">$0</div>
+        </div>
+    </div>
+    
+    <!-- Filters -->
+    <div class="filterBar" id="filterBar">
+        <input type="text" id="searchInput" placeholder="Search by receiver or note...">
+        <select id="statusFilter" onchange="filterByStatusSelect()">
+            <option value="all">All Status</option>
+            <option value="pending">⏳ Pending</option>
+            <option value="processing">🔄 Processing</option>
+            <option value="completed">✅ Completed</option>
+            <option value="failed">❌ Failed</option>
+        </select>
+        <button onclick="applyFilters()">🔍 Filter</button>
+        <button onclick="resetFilters()">🔄 Reset</button>
+    </div>
+    
+    <!-- Transaction List -->
+    <div class="transactionList" id="transactionList"></div>
+    
+    <!-- Pagination -->
+    <div class="pagination" id="pagination"></div>
+</div>
+
+<!-- Edit Transaction Modal -->
+<div id="editModal" class="modal">
+    <div class="modalContent">
+        <h3>✏️ Edit Pending Transaction</h3>
+        <input type="hidden" id="editTransactionId">
+        <div class="inputGroup">
+            <label>Receiver Name</label>
+            <input type="text" id="editReceiver" placeholder="Receiver Name">
+        </div>
+        <div class="inputGroup">
+            <label>Amount</label>
+            <input type="number" id="editAmount" step="0.01" placeholder="Amount">
+        </div>
+        <div class="inputGroup">
+            <label>Payment Method</label>
+            <select id="editMethod">
+                <option value="GCash">GCash</option>
+                <option value="Bank Transfer">Bank Transfer</option>
+                <option value="Cash Pickup">Cash Pickup</option>
+                <option value="PayPal">PayPal</option>
+            </select>
+        </div>
+        <div class="inputGroup">
+            <label>Note</label>
+            <textarea id="editNote" placeholder="Optional note"></textarea>
+        </div>
+        <div class="modalButtons">
+            <button class="btn-save" onclick="saveEditTransaction()">💾 Save Changes</button>
+            <button class="btn-secondary" onclick="closeEditModal()">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- Cancel Transaction Modal -->
+<div id="cancelModal" class="modal">
+    <div class="modalContent">
+        <h3>⚠️ Cancel Transaction</h3>
+        <p>Are you sure you want to cancel this transaction?</p>
+        <div id="cancelDetails"></div>
+        <p style="color:#e74c3c; margin:10px 0; font-weight:bold;">This action cannot be undone!</p>
+        <input type="hidden" id="cancelTransactionId">
+        <div class="modalButtons">
+            <button class="btn-danger" onclick="confirmCancel()">Yes, Cancel Transaction</button>
+            <button class="btn-secondary" onclick="closeCancelModal()">No, Go Back</button>
+        </div>
+    </div>
+</div>
+
+<!-- Transaction Details Modal - COMPLETE VERSION -->
+<div id="detailsModal" class="modal">
+    <div class="modalContent">
+        <h3>📋 Transaction Details</h3>
+        <div id="transactionDetails"></div>
+        <div class="modalButtons">
+            <button class="btn-secondary" onclick="closeDetailsModal()">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- Bottom Nav -->
+<div class="bottomNav" id="bottomNav">
+    <a href="home.html"><div>🏠</div>Home</a>
+    <a href="send.html"><div>💳</div>Send</a>
+    <a href="history.html"><div>📜</div>History</a>
+    <a href="profile.html"><div>👤</div>Profile</a>
+</div>
+
+<script>
+let allTransactions = [];
+let filteredTransactions = [];
+let currentPage = 1;
+let itemsPerPage = 10;
+let currentStatusFilter = 'all';
+
+// Load transactions
+function loadTransactions() {
+    let stored = localStorage.getItem('transactions');
+    if(stored) {
+        allTransactions = JSON.parse(stored);
+        allTransactions = allTransactions.map(t => ({
+            ...t,
+            status: t.status || 'pending'
+        }));
+    } else {
+        allTransactions = [];
+    }
+    
+    filteredTransactions = [...allTransactions];
+    updateStatusCounts();
+    updateSummary();
+    displayTransactions();
+}
+
+// Update status counts
+function updateStatusCounts() {
+    let pending = allTransactions.filter(t => t.status === 'pending').length;
+    let processing = allTransactions.filter(t => t.status === 'processing').length;
+    let completed = allTransactions.filter(t => t.status === 'completed').length;
+    let failed = allTransactions.filter(t => t.status === 'failed').length;
+    
+    document.getElementById('pendingCount').textContent = pending;
+    document.getElementById('processingCount').textContent = processing;
+    document.getElementById('completedCount').textContent = completed;
+    document.getElementById('failedCount').textContent = failed;
+}
+
+// Update summary statistics
+function updateSummary() {
+    let totalCount = filteredTransactions.length;
+    let totalSent = filteredTransactions.reduce((sum, t) => sum + t.amount, 0);
+    let avgAmount = totalCount > 0 ? totalSent / totalCount : 0;
+    
+    let currencySymbol = getCurrencySymbol();
+    
+    document.getElementById('totalCount').textContent = totalCount;
+    document.getElementById('totalSent').textContent = `${currencySymbol}${totalSent.toFixed(2)}`;
+    document.getElementById('avgAmount').textContent = `${currencySymbol}${avgAmount.toFixed(2)}`;
+}
+
+// Get currency symbol
+function getCurrencySymbol() {
+    let currency = localStorage.getItem('userCurrency') || 'USD';
+    const symbols = {
+        USD: '$',
+        EUR: '€',
+        GBP: '£',
+        PHP: '₱',
+        JPY: '¥'
+    };
+    return symbols[currency] || '$';
+}
+
+// Filter by status from summary cards
+function filterByStatus(status) {
+    currentStatusFilter = status;
+    document.getElementById('statusFilter').value = status;
+    
+    document.querySelectorAll('.statusSummaryCard').forEach(card => {
+        card.classList.remove('active');
+    });
+    if(status === 'pending') document.getElementById('pendingCard').classList.add('active');
+    if(status === 'processing') document.getElementById('processingCard').classList.add('active');
+    if(status === 'completed') document.getElementById('completedCard').classList.add('active');
+    if(status === 'failed') document.getElementById('failedCard').classList.add('active');
+    
+    applyFilters();
+}
+
+// Filter by status from select
+function filterByStatusSelect() {
+    currentStatusFilter = document.getElementById('statusFilter').value;
+    applyFilters();
+}
+
+// Apply all filters
+function applyFilters() {
+    let searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    let status = currentStatusFilter;
+    
+    filteredTransactions = allTransactions.filter(t => {
+        let matchesSearch = searchTerm === '' || 
+            t.receiver.toLowerCase().includes(searchTerm) || 
+            (t.note && t.note.toLowerCase().includes(searchTerm));
+        let matchesStatus = status === 'all' || t.status === status;
+        
+        return matchesSearch && matchesStatus;
+    });
+    
+    currentPage = 1;
+    updateSummary();
+    displayTransactions();
+}
+
+// Reset filters
+function resetFilters() {
+    document.getElementById('searchInput').value = '';
+    document.getElementById('statusFilter').value = 'all';
+    currentStatusFilter = 'all';
+    
+    document.querySelectorAll('.statusSummaryCard').forEach(card => {
+        card.classList.remove('active');
+    });
+    
+    filteredTransactions = [...allTransactions];
+    currentPage = 1;
+    updateSummary();
+    displayTransactions();
+}
+
+// Toggle filters visibility
+function toggleFilters() {
+    let filterBar = document.getElementById('filterBar');
+    if(filterBar.style.display === 'none') {
+        filterBar.style.display = 'flex';
+    } else {
+        filterBar.style.display = 'none';
+    }
+}
+
+// Display transactions
+function displayTransactions() {
+    let start = (currentPage - 1) * itemsPerPage;
+    let end = start + itemsPerPage;
+    let pageTransactions = filteredTransactions.slice(start, end);
+    let transactionList = document.getElementById('transactionList');
+    
+    if(pageTransactions.length === 0) {
+        transactionList.innerHTML = `
+            <div class="emptyState">
+                <div class="emptyStateIcon">📭</div>
+                <div>No transactions found</div>
+                <div style="font-size:12px; margin-top:5px;">Send money to see your transactions</div>
+            </div>
+        `;
+        document.getElementById('pagination').innerHTML = '';
+        return;
+    }
+    
+    let currencySymbol = getCurrencySymbol();
+    
+    transactionList.innerHTML = pageTransactions.map(t => {
+        let isEditable = t.status === 'pending';
+        let statusText = '';
+        if(t.status === 'pending') statusText = '⏳ Pending';
+        else if(t.status === 'processing') statusText = '🔄 Processing';
+        else if(t.status === 'completed') statusText = '✅ Completed';
+        else statusText = '❌ Failed';
+        
+        let statusClass = `status-${t.status}`;
+        let displayName = t.recipientDetails ? t.recipientDetails.fullName : t.receiver;
+        
+        return `
+            <div class="transactionItem ${t.status}">
+                <div class="transactionInfo">
+                    <div class="transactionName">💰 ${escapeHtml(displayName)}</div>
+                    <div class="transactionDate">📅 ${t.date}</div>
+                    <div class="transactionMethod">💳 ${t.method}</div>
+                    ${t.note ? `<div class="transactionNote">📝 ${escapeHtml(t.note)}</div>` : ''}
+                    <span class="statusBadge ${statusClass}">${statusText}</span>
+                </div>
+                <div class="transactionAmount amountNegative">
+                    -${currencySymbol}${t.amount.toFixed(2)}
+                </div>
+                ${isEditable ? `
+                    <div class="transactionActions">
+                        <button class="actionBtn btn-edit" onclick="editTransaction(${t.id})">✏️ Edit</button>
+                        <button class="actionBtn btn-cancel" onclick="cancelTransaction(${t.id})">🗑️ Cancel</button>
+                    </div>
+                ` : `
+                    <div class="transactionActions">
+                        <button class="actionBtn btn-view" onclick="viewDetails(${t.id})">👁️ View</button>
+                    </div>
+                `}
+            </div>
+        `;
+    }).join('');
+    
+    updatePagination();
+}
+
+// VIEW DETAILS - COMPLETE FUNCTION WITH ALL INFORMATION
+function viewDetails(transactionId) {
+    let transaction = allTransactions.find(t => t.id === transactionId);
+    if(transaction) {
+        let statusText = '';
+        let statusIcon = '';
+        if(transaction.status === 'pending') {
+            statusText = 'Pending';
+            statusIcon = '⏳';
+        } else if(transaction.status === 'processing') {
+            statusText = 'Processing';
+            statusIcon = '🔄';
+        } else if(transaction.status === 'completed') {
+            statusText = 'Completed';
+            statusIcon = '✅';
+        } else {
+            statusText = 'Failed';
+            statusIcon = '❌';
+        }
+        
+        let currencySymbol = getCurrencySymbol();
+        
+        // Start building details HTML
+        let detailsHtml = `
+            <div class="infoRow">
+                <div class="infoLabel">Transaction ID:</div>
+                <div class="infoValue">#${transaction.id}</div>
+            </div>
+            <div class="infoRow">
+                <div class="infoLabel">Status:</div>
+                <div class="infoValue">${statusIcon} ${statusText}</div>
+            </div>
+            <div class="infoRow">
+                <div class="infoLabel">Date & Time:</div>
+                <div class="infoValue">${transaction.date}</div>
+            </div>
+            <div class="divider"></div>
+            <div class="infoRow">
+                <div class="infoLabel">💰 Amount:</div>
+                <div class="infoValue amount-display">${currencySymbol}${transaction.amount.toFixed(2)}</div>
+            </div>
+        `;
+        
+        // Check if this is a welcome bonus transaction
+        if(transaction.receiver === 'Welcome Bonus') {
+            detailsHtml += `
+                <div class="infoRow">
+                    <div class="infoLabel">🎉 Transaction Type:</div>
+                    <div class="infoValue">Welcome Bonus</div>
+                </div>
+                ${transaction.note ? `
+                <div class="infoRow">
+                    <div class="infoLabel">📝 Note:</div>
+                    <div class="infoValue">${escapeHtml(transaction.note)}</div>
+                </div>
+                ` : ''}
+            `;
+        } 
+        // Regular transaction with recipient details
+        else {
+            // Payment Method and Purpose
+            detailsHtml += `
+                <div class="infoRow">
+                    <div class="infoLabel">💳 Payment Method:</div>
+                    <div class="infoValue">${transaction.method}</div>
+                </div>
+                ${transaction.purpose ? `
+                <div class="infoRow">
+                    <div class="infoLabel">📌 Transfer Purpose:</div>
+                    <div class="infoValue">${transaction.purpose}</div>
+                </div>
+                ` : ''}
+            `;
+            
+            // Recipient Information Section
+            if(transaction.recipientDetails) {
+                const rd = transaction.recipientDetails;
+                
+                detailsHtml += `<div class="section-title">👤 Recipient Information</div>`;
+                
+                detailsHtml += `
+                    <div class="infoRow">
+                        <div class="infoLabel">Full Name:</div>
+                        <div class="infoValue">${escapeHtml(rd.fullName || transaction.receiver)}</div>
+                    </div>
+                `;
+                
+                if(rd.firstName || rd.lastName) {
+                    detailsHtml += `
+                        <div class="infoRow">
+                            <div class="infoLabel">Name:</div>
+                            <div class="infoValue">${escapeHtml(rd.firstName || '')} ${escapeHtml(rd.lastName || '')}</div>
+                        </div>
+                    `;
+                }
+                
+                if(rd.accountNumber) {
+                    detailsHtml += `
+                        <div class="infoRow">
+                            <div class="infoLabel">Account Number:</div>
+                            <div class="infoValue">${escapeHtml(rd.accountNumber)}</div>
+                        </div>
+                    `;
+                }
+                
+                if(rd.bankName) {
+                    detailsHtml += `
+                        <div class="infoRow">
+                            <div class="infoLabel">Bank/Provider:</div>
+                            <div class="infoValue">${escapeHtml(rd.bankName)}</div>
+                        </div>
+                    `;
+                }
+                
+                if(rd.accountType) {
+                    detailsHtml += `
+                        <div class="infoRow">
+                            <div class="infoLabel">Account Type:</div>
+                            <div class="infoValue">${escapeHtml(rd.accountType)}</div>
+                        </div>
+                    `;
+                }
+                
+                // Address Information Section
+                if(rd.streetAddress || rd.city || rd.country) {
+                    detailsHtml += `<div class="section-title">📍 Address Information</div>`;
+                    
+                    if(rd.streetAddress) {
+                        detailsHtml += `
+                            <div class="infoRow">
+                                <div class="infoLabel">Street Address:</div>
+                                <div class="infoValue">${escapeHtml(rd.streetAddress)}</div>
+                            </div>
+                        `;
+                    }
+                    
+                    if(rd.city) {
+                        detailsHtml += `
+                            <div class="infoRow">
+                                <div class="infoLabel">City:</div>
+                                <div class="infoValue">${escapeHtml(rd.city)}</div>
+                            </div>
+                        `;
+                    }
+                    
+                    if(rd.province) {
+                        detailsHtml += `
+                            <div class="infoRow">
+                                <div class="infoLabel">Province/State:</div>
+                                <div class="infoValue">${escapeHtml(rd.province)}</div>
+                            </div>
+                        `;
+                    }
+                    
+                    if(rd.postalCode) {
+                        detailsHtml += `
+                            <div class="infoRow">
+                                <div class="infoLabel">Postal Code:</div>
+                                <div class="infoValue">${escapeHtml(rd.postalCode)}</div>
+                            </div>
+                        `;
+                    }
+                    
+                    if(rd.country) {
+                        detailsHtml += `
+                            <div class="infoRow">
+                                <div class="infoLabel">Country:</div>
+                                <div class="infoValue">${escapeHtml(rd.country)}</div>
+                            </div>
+                        `;
+                    }
+                    
+                    if(rd.fullAddress) {
+                        detailsHtml += `
+                            <div class="infoRow">
+                                <div class="infoLabel">Full Address:</div>
+                                <div class="infoValue">${escapeHtml(rd.fullAddress)}</div>
+                            </div>
+                        `;
+                    }
+                }
+            } else {
+                // Fallback for older transactions without recipientDetails
+                detailsHtml += `
+                    <div class="section-title">👤 Recipient Information</div>
+                    <div class="infoRow">
+                        <div class="infoLabel">Receiver:</div>
+                        <div class="infoValue">${escapeHtml(transaction.receiver)}</div>
+                    </div>
+                `;
+            }
+            
+            // Note Section
+            if(transaction.note) {
+                detailsHtml += `
+                    <div class="section-title">📝 Note</div>
+                    <div class="infoRow">
+                        <div class="infoValue">${escapeHtml(transaction.note)}</div>
+                    </div>
+                `;
+            }
+        }
+        
+        document.getElementById('transactionDetails').innerHTML = detailsHtml;
+        document.getElementById('detailsModal').style.display = 'block';
+    }
+}
+
+// Escape HTML
+function escapeHtml(text) {
+    if(!text) return '';
+    return text.replace(/[&<>]/g, function(m) {
+        if(m === '&') return '&amp;';
+        if(m === '<') return '&lt;';
+        if(m === '>') return '&gt;';
+        return m;
+    });
+}
+
+// Edit pending transaction
+function editTransaction(transactionId) {
+    let transaction = allTransactions.find(t => t.id === transactionId);
+    if(transaction && transaction.status === 'pending') {
+        document.getElementById('editTransactionId').value = transaction.id;
+        document.getElementById('editReceiver').value = transaction.receiver;
+        document.getElementById('editAmount').value = transaction.amount;
+        document.getElementById('editMethod').value = transaction.method;
+        document.getElementById('editNote').value = transaction.note || '';
+        document.getElementById('editModal').style.display = 'block';
+    } else {
+        showNotification('Cannot edit transaction that is already being processed or completed', 'error');
+    }
+}
+
+// Save edited transaction
+function saveEditTransaction() {
+    let transactionId = parseInt(document.getElementById('editTransactionId').value);
+    let newReceiver = document.getElementById('editReceiver').value.trim();
+    let newAmount = parseFloat(document.getElementById('editAmount').value);
+    let newMethod = document.getElementById('editMethod').value;
+    let newNote = document.getElementById('editNote').value.trim();
+    
+    if(!newReceiver || !newAmount || newAmount <= 0) {
+        showNotification('Please fill all required fields', 'error');
+        return;
+    }
+    
+    let transactionIndex = allTransactions.findIndex(t => t.id === transactionId);
+    if(transactionIndex !== -1 && allTransactions[transactionIndex].status === 'pending') {
+        let oldAmount = allTransactions[transactionIndex].amount;
+        let amountDifference = oldAmount - newAmount;
+        
+        allTransactions[transactionIndex].receiver = newReceiver;
+        allTransactions[transactionIndex].amount = newAmount;
+        allTransactions[transactionIndex].method = newMethod;
+        allTransactions[transactionIndex].note = newNote;
+        
+        if(amountDifference !== 0) {
+            let currentBalance = parseFloat(localStorage.getItem('userBalance') || '0');
+            let newBalance = currentBalance + amountDifference;
+            localStorage.setItem('userBalance', newBalance);
+            
+            let allUsers = JSON.parse(localStorage.getItem('allUsers') || '[]');
+            let userIndex = allUsers.findIndex(u => u.email === allTransactions[transactionIndex].userEmail);
+            if(userIndex !== -1) {
+                allUsers[userIndex].balance = newBalance;
+                localStorage.setItem('allUsers', JSON.stringify(allUsers));
+            }
+        }
+        
+        localStorage.setItem('transactions', JSON.stringify(allTransactions));
+        
+        let allAdminTransactions = JSON.parse(localStorage.getItem('allTransactions') || '[]');
+        let adminIndex = allAdminTransactions.findIndex(t => t.id === transactionId);
+        if(adminIndex !== -1) {
+            allAdminTransactions[adminIndex] = {...allTransactions[transactionIndex]};
+            localStorage.setItem('allTransactions', JSON.stringify(allAdminTransactions));
+        }
+        
+        closeEditModal();
+        loadTransactions();
+        showNotification('Transaction updated successfully!', 'success');
+    }
+}
+
+// Cancel transaction
+function cancelTransaction(transactionId) {
+    let transaction = allTransactions.find(t => t.id === transactionId);
+    if(transaction && transaction.status === 'pending') {
+        document.getElementById('cancelTransactionId').value = transactionId;
+        document.getElementById('cancelDetails').innerHTML = `
+            <div class="infoRow">
+                <div class="infoLabel">Receiver:</div>
+                <div class="infoValue">${transaction.receiver}</div>
+            </div>
+            <div class="infoRow">
+                <div class="infoLabel">Amount:</div>
+                <div class="infoValue">$${transaction.amount.toFixed(2)}</div>
+            </div>
+        `;
+        document.getElementById('cancelModal').style.display = 'block';
+    } else {
+        showNotification('Cannot cancel transaction that is already being processed or completed', 'error');
+    }
+}
+
+// Confirm cancel
+function confirmCancel() {
+    let transactionId = parseInt(document.getElementById('cancelTransactionId').value);
+    let transactionIndex = allTransactions.findIndex(t => t.id === transactionId);
+    
+    if(transactionIndex !== -1 && allTransactions[transactionIndex].status === 'pending') {
+        let amount = allTransactions[transactionIndex].amount;
+        
+        let currentBalance = parseFloat(localStorage.getItem('userBalance') || '0');
+        let newBalance = currentBalance + amount;
+        localStorage.setItem('userBalance', newBalance);
+        
+        let allUsers = JSON.parse(localStorage.getItem('allUsers') || '[]');
+        let userIndex = allUsers.findIndex(u => u.email === allTransactions[transactionIndex].userEmail);
+        if(userIndex !== -1) {
+            allUsers[userIndex].balance = newBalance;
+            localStorage.setItem('allUsers', JSON.stringify(allUsers));
+        }
+        
+        allTransactions.splice(transactionIndex, 1);
+        localStorage.setItem('transactions', JSON.stringify(allTransactions));
+        
+        let allAdminTransactions = JSON.parse(localStorage.getItem('allTransactions') || '[]');
+        allAdminTransactions = allAdminTransactions.filter(t => t.id !== transactionId);
+        localStorage.setItem('allTransactions', JSON.stringify(allAdminTransactions));
+        
+        closeCancelModal();
+        loadTransactions();
+        showNotification(`✅ Transaction cancelled! $${amount.toFixed(2)} refunded to your balance.`, 'success');
+    }
+}
+
+// Update pagination
+function updatePagination() {
+    let totalPages = Math.ceil(filteredTransactions.length / itemsPerPage);
+    let pagination = document.getElementById('pagination');
+    
+    if(totalPages <= 1) {
+        pagination.innerHTML = '';
+        return;
+    }
+    
+    let html = '';
+    html += `<button onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>← Prev</button>`;
+    
+    let startPage = Math.max(1, currentPage - 2);
+    let endPage = Math.min(totalPages, currentPage + 2);
+    
+    for(let i = startPage; i <= endPage; i++) {
+        html += `<button onclick="changePage(${i})" class="${currentPage === i ? 'active' : ''}">${i}</button>`;
+    }
+    
+    html += `<button onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>Next →</button>`;
+    
+    pagination.innerHTML = html;
+}
+
+// Change page
+function changePage(page) {
+    let totalPages = Math.ceil(filteredTransactions.length / itemsPerPage);
+    if(page < 1 || page > totalPages) return;
+    currentPage = page;
+    displayTransactions();
+    window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+// Close modals
+function closeEditModal() {
+    document.getElementById('editModal').style.display = 'none';
+}
+
+function closeCancelModal() {
+    document.getElementById('cancelModal').style.display = 'none';
+}
+
+function closeDetailsModal() {
+    document.getElementById('detailsModal').style.display = 'none';
+}
+
+// Show notification
+function showNotification(message, type) {
+    let notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.innerHTML = message;
+    document.body.appendChild(notification);
+    notification.style.display = 'block';
+    
+    setTimeout(() => {
+        notification.style.opacity = '0';
+        setTimeout(() => {
+            notification.remove();
+        }, 300);
+    }, 3000);
+}
+
+// Close modals when clicking outside
+window.onclick = function(event) {
+    if(event.target.classList.contains('modal')) {
+        event.target.style.display = 'none';
+    }
+}
+
+// Bottom Nav Scroll
+let lastScroll = 0;
+let bottomNav = document.getElementById("bottomNav");
+
+window.addEventListener("scroll", function(){
+    let currentScroll = window.pageYOffset;
+    if(currentScroll <= 0){
+        bottomNav.classList.remove("hide");
+        return;
+    }
+    if(currentScroll > lastScroll){
+        bottomNav.classList.add("hide");
+    }else{
+        bottomNav.classList.remove("hide");
+    }
+    lastScroll = currentScroll;
+});
+
+// Check login
+if(!localStorage.getItem('isLoggedIn')) {
+    window.location.href = 'login.html';
+}
+
+// Initialize
+loadTransactions();
+</script>
+</body>
+</html>
