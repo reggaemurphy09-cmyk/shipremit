@@ -1,7 +1,7 @@
 {
-  "name": "Shipremit",
-  "short_name": "Shipremit",
-  "start_url": "/shipremit/index.html",
+  "name": "Ship Remit",
+  "short_name": "ShipRemit",
+  "start_url": "index.html",
   "display": "standalone",
   "background_color": "#0a1628",
   "theme_color": "#0a1628",
