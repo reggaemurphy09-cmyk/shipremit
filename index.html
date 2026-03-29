@@ -3,14 +3,21 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Ship Remit - Loading...</title>
+
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0a1628">
 
 <link rel="apple-touch-icon" href="icon.png">
 <link rel="apple-touch-icon" sizes="180x180" href="icon.png">
 <link rel="icon" type="image/png" href="icon.png">
-    <style>
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Ship Remit">
+
+<style>
 body{
     margin:0;
     padding:0;
@@ -43,7 +50,9 @@ body{
 }
 </style>
 </head>
+
 <body>
+
 <div class="loading">
     <div style="font-size:48px;">🚢</div>
     <div style="font-size:24px; margin:20px;">Ship Remit</div>
@@ -52,26 +61,31 @@ body{
 </div>
 
 <script>
-// Check login status and redirect - NO FIREBASE
 setTimeout(() => {
+
     let isLoggedIn = localStorage.getItem('isLoggedIn');
     let isAdminLoggedIn = localStorage.getItem('isAdminLoggedIn');
     
     if(isAdminLoggedIn === 'true') {
         window.location.href = 'admin-dashboard.html';
-    } else if(isLoggedIn === 'true') {
+    } 
+    else if(isLoggedIn === 'true') {
         window.location.href = 'home.html';
-    } else {
+    } 
+    else {
         window.location.href = 'login.html';
     }
+
 }, 1500);
 </script>
-    <script>
+
+<script>
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('service-worker.js')
+  navigator.serviceWorker.register('/shipremit/service-worker.js')
   .then(() => console.log('Service Worker Registered'))
   .catch(err => console.log('Service Worker Error', err));
 }
 </script>
+
 </body>
 </html>
